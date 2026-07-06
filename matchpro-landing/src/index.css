@@ -1,0 +1,271 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   Design tokens — espejo de BrandKit.swift (app iOS MatchPro)
+   Regla: nunca slate sobre color; usar la familia del color.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  /* Marca (logo) */
+  --color-mark: #cbfd80; /* lime del logo */
+  --color-mint: #82e896; /* verde claro del logo */
+  --color-tealbrand: #34d399; /* teal del logo (intersección / "match") */
+
+  /* UI lime (acción / positivo) */
+  --color-limebrand: #bbf451; /* lime-300 */
+  --color-limeink: #35530e; /* lime-900 · tinta sobre lime */
+  --color-limefg: #4d7c0f; /* acento lime sobre card clara */
+  --color-limetint: #d8f999; /* fondo badge/realce */
+
+  /* Neutros: escala slate de Tailwind, exacta */
+  --color-ink: #334155; /* slate-700 · texto primario */
+  --color-inkstrong: #0f172a; /* slate-900 · máx. contraste */
+  --color-surface: #f1f5f9; /* slate-100 · fondo */
+  --color-line: #e2e8f0; /* slate-200 · bordes */
+  --color-second: #64748b; /* slate-500 · texto secundario */
+  --color-mutedink: #94a3b8; /* slate-400 · texto terciario */
+
+  /* Noche (secciones dark = espejo del dark de la app) */
+  --color-night: #0e141b;
+  --color-nightcard: #1a222e;
+  --color-nightline: #2a3543;
+  --color-nightink: #e2e8f0; /* slate-200 sobre dark */
+  --color-nightsecond: #94a3b8; /* slate-400 sobre dark */
+
+  /* Semánticos */
+  --color-win: #10b981; /* emerald */
+  --color-loss: #fb7185; /* rose */
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  /* Motion tokens */
+  --ease-brand: cubic-bezier(0.21, 0.47, 0.32, 0.98);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-surface font-sans text-ink antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Eyebrow mono — gesto compartido con matchpro.tv */
+.eyebrow {
+  @apply font-mono text-[11px] font-semibold tracking-[0.18em] uppercase;
+}
+
+/* Resplandor lime confinado al top — espejo de limeGlowBackground() de la app */
+.lime-glow-top {
+  background:
+    linear-gradient(to bottom, rgba(187, 244, 81, 0.28), transparent 420px),
+    var(--color-surface);
+}
+
+/* Fondo oscuro de la app (menú): night + scrim lime confinado al top */
+.night-app {
+  background:
+    linear-gradient(to bottom, rgba(187, 244, 81, 0.09), transparent 280px),
+    var(--color-night);
+}
+
+/* Mesh de marca para el hero: mark → mint → teal (los colores del logo) */
+.hero-mesh {
+  background:
+    radial-gradient(52rem 30rem at 82% -12%, rgba(52, 211, 153, 0.32), transparent 60%),
+    radial-gradient(46rem 28rem at -10% 8%, rgba(203, 253, 128, 0.55), transparent 60%),
+    radial-gradient(40rem 26rem at 55% 108%, rgba(130, 232, 150, 0.25), transparent 62%),
+    var(--color-surface);
+}
+
+/* Grano sutil (feTurbulence) — la textura editorial de las ilustraciones de la app */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Ticker de resultados en vivo */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee 36s linear infinite;
+  will-change: transform;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Chips flotantes del hero */
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.floaty {
+  animation: floaty 5.5s ease-in-out infinite;
+}
+.floaty-delay {
+  animation-delay: 2.2s;
+}
+
+/* ── Blobs premium del hero: deriva visible, orgánica ──────── */
+@keyframes blob-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(140px, -70px) scale(1.25);
+  }
+  55% {
+    transform: translate(60px, 90px) scale(0.85);
+  }
+  80% {
+    transform: translate(-80px, 30px) scale(1.1);
+  }
+}
+@keyframes blob-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  30% {
+    transform: translate(-130px, 90px) scale(1.2);
+  }
+  60% {
+    transform: translate(-40px, -60px) scale(0.85);
+  }
+  85% {
+    transform: translate(70px, 40px) scale(1.05);
+  }
+}
+@keyframes blob-c {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  35% {
+    transform: translate(100px, -80px) scale(1.25);
+  }
+  70% {
+    transform: translate(-90px, 50px) scale(0.9);
+  }
+}
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  pointer-events: none;
+  will-change: transform;
+}
+.blob-a {
+  animation: blob-a 13s ease-in-out infinite;
+}
+.blob-b {
+  animation: blob-b 16s ease-in-out infinite;
+}
+.blob-c {
+  animation: blob-c 19s ease-in-out infinite;
+}
+
+/* ── Aurora para las cards de clubes (gesto del Figma, en familia de marca) ── */
+@keyframes aurora {
+  0%,
+  100% {
+    transform: translate(-10%, -6%) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate(8%, 6%) rotate(12deg) scale(1.15);
+  }
+}
+.aurora {
+  position: absolute;
+  inset: -30%;
+  filter: blur(50px);
+  pointer-events: none;
+  animation: aurora 16s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ── Shine sweep para la card recomendada del pricing ──────── */
+@keyframes shine {
+  0%,
+  70% {
+    transform: translateX(-130%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(230%) skewX(-18deg);
+  }
+}
+.shine::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.09), transparent);
+  animation: shine 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── Barrido del radar TrueRank ────────────────────────────── */
+@keyframes sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.radar-sweep {
+  animation: sweep 7s linear infinite;
+  transform-origin: center;
+}
+
+/* ── Pulso de vibración (ScoreMatch: "lo sientes, no lo miras") ── */
+@keyframes haptic {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+.haptic-ring {
+  animation: haptic 2.2s cubic-bezier(0.21, 0.47, 0.32, 0.98) infinite;
+}
+
+::selection {
+  background: var(--color-limebrand);
+  color: var(--color-limeink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .marquee-track,
+  .floaty,
+  .blob,
+  .aurora,
+  .radar-sweep,
+  .haptic-ring {
+    animation: none;
+  }
+  .shine::before {
+    display: none;
+  }
+}
