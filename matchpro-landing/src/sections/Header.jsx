@@ -42,20 +42,28 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {/* Toggle de idioma */}
-          <div className="flex items-center gap-0.5 rounded-full border border-line bg-white/70 p-0.5 text-xs font-bold">
-            {["es", "en"].map((l) => (
-              <button
-                key={l}
-                type="button"
-                onClick={() => setLang(l)}
-                aria-pressed={lang === l}
-                className={`rounded-full px-2 py-1 uppercase transition-colors ${
-                  lang === l ? "bg-inkstrong text-white" : "text-second hover:text-inkstrong"
-                }`}
-              >
-                {l}
-              </button>
+          {/* Toggle de idioma — discreto: el protagonista es el CTA */}
+          <div className="flex items-center gap-1 font-mono text-[11px] font-semibold tracking-wide">
+            {["es", "en"].map((l, i) => (
+              <span key={l} className="flex items-center gap-1">
+                {i > 0 && (
+                  <span className="text-mutedink" aria-hidden="true">
+                    /
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setLang(l)}
+                  aria-pressed={lang === l}
+                  className={`uppercase transition-colors ${
+                    lang === l
+                      ? "text-inkstrong underline decoration-limebrand decoration-2 underline-offset-4"
+                      : "text-mutedink hover:text-inkstrong"
+                  }`}
+                >
+                  {l}
+                </button>
+              </span>
             ))}
           </div>
           <a

@@ -110,12 +110,24 @@ export const STRINGS = {
       title: "Un partido de martes, con producción de profesional.",
       sub: "Esto es lo que nadie más hace: el partido entero — antes, durante y después — dentro de un mismo sistema.",
       watchLive: "Partido en vivo · en la muñeca",
+      chat: {
+        rival: "¿Jueves 18:30 en Club Cordillera?",
+        me: "Confirmado 👍",
+        status: "✓ Partido confirmado · Jue 18:30",
+      },
       beats: [
+        {
+          tag: "Antes · Matchmaking",
+          title: "El rival correcto, sin rogar en el grupo.",
+          body: "El matchmaking cruza nivel, ubicación y disponibilidad y te propone con quién jugar. O desafía en tu escalerilla — pública, privada con tus amigos o la de tu club. Hora y cancha se coordinan en el chat del desafío: el partido nace y se cierra en la app.",
+          alt: "Matchmaking en MatchPro: rivales cercanos a tu nivel en el mapa",
+        },
         {
           tag: "Durante · ScoreMatch",
           title: "Marca cada punto desde tu muñeca.",
           body: "Con ScoreMatch en tu Apple Watch, tocas tu lado de la pantalla y suma. Cada punto, game y victoria tiene su propia vibración: lo sientes, no lo miras.",
           note: "Opcional — también puedes registrar solo el resultado al terminar.",
+          linkLabel: "Conocer ScoreMatch →",
           chip: "Punto para ti",
         },
         {
@@ -200,6 +212,12 @@ export const STRINGS = {
       eyebrow: "Para tu club",
       title: "MatchPro también impulsa a los clubes.",
       sub: "Los clubes con MatchPro te dan reservas, torneos y tu ranking en la pantalla del lobby — y pueden patrocinar tus competencias.",
+      playerTitle: "Tu club, en tu bolsillo",
+      playerChips: ["Canchas", "Clases", "Torneos", "Arriendos"],
+      playerBody:
+        "Todo lo que tu club ofrece queda visible y reservable desde la app. Y si arriendan entre varios, el total se divide y cada uno paga lo suyo.",
+      pagoCourt: "Cancha 2 · Sáb 18:00",
+      pagoEach: "c/u",
       cmTitle: "Digitaliza tu club.",
       cmSub: "Club Manager, la operación del club centralizada.",
       cmBullets: [
@@ -453,12 +471,24 @@ export const STRINGS = {
       title: "A Tuesday match, with professional production.",
       sub: "This is what nobody else does: the entire match — before, during and after — inside one system.",
       watchLive: "Live match · on your wrist",
+      chat: {
+        rival: "Thursday 6:30 pm at Club Cordillera?",
+        me: "Confirmed 👍",
+        status: "✓ Match confirmed · Thu 6:30 pm",
+      },
       beats: [
+        {
+          tag: "Before · Matchmaking",
+          title: "The right rival, without begging the group chat.",
+          body: "Matchmaking crosses level, location and availability and proposes who to play. Or challenge in your ladder — public, private with your friends, or your club's. Time and court get coordinated in the challenge chat: the match is born and locked in the app.",
+          alt: "Matchmaking in MatchPro: nearby rivals at your level on the map",
+        },
         {
           tag: "During · ScoreMatch",
           title: "Score every point from your wrist.",
           body: "With ScoreMatch on your Apple Watch, you tap your side of the screen and it counts. Every point, game and win has its own haptic: you feel it, you don't stare at it.",
           note: "Optional — you can also just log the final score when you're done.",
+          linkLabel: "Discover ScoreMatch →",
           chip: "Point for you",
         },
         {
@@ -543,6 +573,12 @@ export const STRINGS = {
       eyebrow: "For your club",
       title: "MatchPro powers clubs too.",
       sub: "Clubs on MatchPro give you bookings, tournaments and your ranking on the lobby screen — and they can sponsor your competitions.",
+      playerTitle: "Your club, in your pocket",
+      playerChips: ["Courts", "Classes", "Tournaments", "Rentals"],
+      playerBody:
+        "Everything your club offers is visible and bookable from the app. And if you rent together, the total splits and everyone pays their share.",
+      pagoCourt: "Court 2 · Sat 6 pm",
+      pagoEach: "each",
       cmTitle: "Digitize your club.",
       cmSub: "Club Manager, the club's operation centralized.",
       cmBullets: [

@@ -314,6 +314,59 @@ function TvMock() {
   );
 }
 
+/** Pago dividido: los checks van entrando uno a uno. */
+const SPLIT_FRIENDS = ["JR", "DS", "CV", "TR"];
+
+function SplitPayment() {
+  const { t } = useLang();
+  const c = t.clubes;
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const prefersReduced = useReducedMotion();
+
+  return (
+    <div ref={ref} className="w-full max-w-xs rounded-2xl border border-line bg-white p-4 shadow-lg shadow-inkstrong/[0.05]">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-second">{c.pagoCourt}</p>
+        <p className="font-mono text-sm font-bold text-inkstrong">$24.000</p>
+      </div>
+      <div className="my-3 flex items-center gap-2" aria-hidden="true">
+        <span className="h-px flex-1 bg-line" />
+        <span className="rounded-full bg-limetint px-2 py-0.5 font-mono text-[10px] font-bold text-limefg">
+          ÷ 4
+        </span>
+        <span className="h-px flex-1 bg-line" />
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {SPLIT_FRIENDS.map((f, i) => (
+          <div key={f} className="text-center">
+            <span className="relative mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-mint to-tealbrand text-[10px] font-bold text-night">
+              {f}
+              <motion.span
+                className="absolute -right-1 -bottom-1 flex h-4 w-4 items-center justify-center rounded-full bg-win text-[8px] text-white ring-2 ring-white"
+                initial={{ scale: 0 }}
+                animate={inView ? { scale: 1 } : {}}
+                transition={{
+                  delay: prefersReduced ? 0 : 0.5 + i * 0.35,
+                  duration: 0.25,
+                  ease: EASE,
+                }}
+                aria-hidden="true"
+              >
+                ✓
+              </motion.span>
+            </span>
+            <p className="mt-1.5 font-mono text-[10px] font-semibold text-inkstrong">$6.000</p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-2 text-center font-mono text-[9px] tracking-wider text-mutedink uppercase">
+        {c.pagoEach} · Transbank
+      </p>
+    </div>
+  );
+}
+
 export function Clubes() {
   const { t } = useLang();
   const c = t.clubes;
@@ -322,7 +375,28 @@ export function Clubes() {
       <div className="mx-auto max-w-6xl px-5">
         <SectionHeading eyebrow={c.eyebrow} title={c.title} sub={c.sub} />
 
-        <Reveal staggered className="mt-12 grid gap-5 lg:grid-cols-2">
+        {/* El lado jugador: reservas + pago dividido, en una sola franja */}
+        <Reveal className="mx-auto mt-10 max-w-4xl rounded-[2rem] border border-line bg-white p-7 sm:p-8">
+          <div className="flex flex-col items-center gap-7 sm:flex-row sm:justify-between">
+            <div>
+              <p className="font-bold text-inkstrong">{c.playerTitle}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {c.playerChips.map((chip) => (
+                  <span
+                    key={chip}
+                    className="rounded-full bg-limetint px-3.5 py-1 text-sm font-semibold text-limefg"
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-3 max-w-sm text-sm leading-relaxed text-second">{c.playerBody}</p>
+            </div>
+            <SplitPayment />
+          </div>
+        </Reveal>
+
+        <Reveal staggered className="mt-10 grid gap-5 lg:grid-cols-2">
           {/* Club Manager — night + aurora lime */}
           <RevealItem className="group grain relative flex flex-col overflow-hidden rounded-[2.5rem] bg-night p-8 sm:p-10">
             <div className="aurora bg-[radial-gradient(closest-side,rgba(187,244,81,0.28),transparent)]" aria-hidden="true" />

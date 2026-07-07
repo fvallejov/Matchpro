@@ -130,11 +130,42 @@ export function CtaFinal() {
   const { t } = useLang();
   return (
     <section className="px-5 py-20 sm:py-28">
-      <Reveal className="night-app grain relative mx-auto max-w-6xl overflow-hidden rounded-[3rem] px-6 py-20 text-center sm:py-24">
+      <Reveal className="grain relative mx-auto max-w-6xl overflow-hidden rounded-[3rem] bg-night px-6 py-20 text-center sm:py-24">
+        {/* Auroras de marca, tenues sobre el night profundo */}
+        <div
+          className="aurora bg-[radial-gradient(closest-side,rgba(187,244,81,0.12),transparent)]"
+          aria-hidden="true"
+        />
+        <div
+          className="aurora bg-[radial-gradient(closest-side,rgba(52,211,153,0.10),transparent)]"
+          style={{ animationDelay: "-8s" }}
+          aria-hidden="true"
+        />
+
         <div className="relative">
-          <img src="/isotipo.svg" alt="" className="mx-auto h-10" aria-hidden="true" />
+          <motion.img
+            src="/isotipo.svg"
+            alt=""
+            className="mx-auto h-10"
+            aria-hidden="true"
+            initial={{ scale: 0, rotate: -12 }}
+            whileInView={{ scale: 1, rotate: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ type: "spring", stiffness: 260, damping: 18 }}
+          />
           <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-extrabold tracking-tight text-nightink text-balance sm:text-5xl">
-            {t.cta.t1} <span className="text-limebrand italic">{t.cta.hi}</span>
+            {t.cta.t1}{" "}
+            <span className="relative inline-block text-limebrand italic">
+              {t.cta.hi}
+              <motion.span
+                className="absolute inset-x-0 -bottom-1.5 h-1 origin-left rounded-full bg-limebrand"
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.6, ease: EASE, delay: 0.4 }}
+                aria-hidden="true"
+              />
+            </span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-nightsecond">{t.cta.sub}</p>
           <div className="mt-9 flex flex-col items-center gap-5">

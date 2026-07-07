@@ -148,8 +148,45 @@ function ScoreWatch() {
   );
 }
 
+/* Mini chat del desafío — la coordinación tal como se ve en la app:
+   burbujas que van llegando (la propia en lime, como en la app). */
+function MiniChat() {
+  const { t } = useLang();
+  const c = t.partido.chat;
+  const bubble = (delay) => ({
+    initial: { opacity: 0, y: 10, scale: 0.95 },
+    whileInView: { opacity: 1, y: 0, scale: 1 },
+    viewport: { once: true, margin: "-40px" },
+    transition: { delay, duration: 0.35, ease: EASE },
+  });
+
+  return (
+    <div className="absolute bottom-6 left-4 z-20 w-60 rounded-2xl border border-white/60 bg-white/95 p-3 text-left shadow-xl shadow-inkstrong/15 backdrop-blur sm:left-8">
+      <motion.div {...bubble(0.4)} className="flex items-end gap-1.5">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-mint to-tealbrand text-[9px] font-bold text-night">
+          DR
+        </span>
+        <p className="rounded-2xl rounded-bl-sm bg-surface px-3 py-1.5 text-xs leading-snug text-ink">
+          {c.rival}
+        </p>
+      </motion.div>
+      <motion.div {...bubble(1.1)} className="mt-1.5 flex justify-end">
+        <p className="rounded-2xl rounded-br-sm bg-limebrand px-3 py-1.5 text-xs font-semibold text-limeink">
+          {c.me}
+        </p>
+      </motion.div>
+      <motion.p
+        {...bubble(1.8)}
+        className="mt-2 rounded-full bg-win/10 px-2.5 py-1 text-center font-mono text-[9px] font-bold tracking-wide text-win uppercase"
+      >
+        {c.status}
+      </motion.p>
+    </div>
+  );
+}
+
 /** Panel con gradiente vivo: blobs en deriva + parallax + dispositivo flotando. */
-function BeatVisual({ blobs, children, chip }) {
+function BeatVisual({ blobs, children, chip, custom }) {
   const ref = useRef(null);
   const prefersReduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
@@ -173,12 +210,21 @@ function BeatVisual({ blobs, children, chip }) {
           {chip}
         </div>
       )}
+      {custom}
     </div>
   );
 }
 
 /* Metadata visual por beat; el copy vive en strings.js */
 const BEAT_META = [
+  {
+    blobs: [
+      "blob-b -top-16 -left-16 h-72 w-72 bg-limebrand/40",
+      "blob-a -right-16 -bottom-16 h-72 w-72 bg-tealbrand/40",
+    ],
+    visual: "/app/matchmaking.webp",
+    custom: <MiniChat />,
+  },
   {
     blobs: [
       "blob-a -top-20 -left-16 h-72 w-72 bg-tealbrand/50",
@@ -230,13 +276,24 @@ export default function Partido() {
                   </h3>
                   <p className="mt-4 max-w-md text-lg leading-relaxed text-ink">{b.body}</p>
                   {b.note && <p className="mt-3 text-sm text-second">{b.note}</p>}
+                  {b.linkLabel && (
+                    <a
+                      href="https://scorematch.app"
+                      className="mt-3 inline-block text-sm font-semibold text-limefg transition-colors hover:text-inkstrong"
+                    >
+                      {b.linkLabel}
+                    </a>
+                  )}
                 </div>
                 <BeatVisual
                   blobs={m.blobs}
+                  custom={m.custom}
                   chip={
-                    <>
-                      {m.chipIcon} {b.chip}
-                    </>
+                    b.chip ? (
+                      <>
+                        {m.chipIcon} {b.chip}
+                      </>
+                    ) : null
                   }
                 >
                   {m.visual === "watch" ? (
