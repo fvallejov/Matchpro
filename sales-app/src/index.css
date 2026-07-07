@@ -1,0 +1,287 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   Design tokens — heredados 1:1 de matchpro-landing V5
+   (espejo de BrandKit.swift). Regla del ecosistema:
+   nunca slate sobre color; usar la familia del color.
+   Club Manager NO introduce familias nuevas: diferencia por
+   proporción (más night, teal como acento secundario).
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  /* Marca (logo) */
+  --color-mark: #cbfd80;
+  --color-mint: #82e896;
+  --color-tealbrand: #34d399; /* acento secundario institucional de Club Manager */
+  --color-tealink: #064e3b; /* tinta sobre teal */
+
+  /* UI lime (acción / positivo) */
+  --color-limebrand: #bbf451;
+  --color-limeink: #35530e;
+  --color-limefg: #4d7c0f;
+  --color-limetint: #d8f999;
+
+  /* Neutros: escala slate exacta */
+  --color-ink: #334155;
+  --color-inkstrong: #0f172a;
+  --color-surface: #f1f5f9;
+  --color-line: #e2e8f0;
+  --color-second: #64748b;
+  --color-mutedink: #94a3b8;
+
+  /* Noche (secciones dark, compartido con scorematch/matchpro.tv) */
+  --color-night: #0e141b;
+  --color-nightcard: #1a222e;
+  --color-nightline: #2a3543;
+  --color-nightink: #e2e8f0;
+  --color-nightsecond: #94a3b8;
+
+  /* Semánticos */
+  --color-win: #10b981;
+  --color-loss: #fb7185;
+
+  /* Paleta DEL PRODUCTO — solo para uso DENTRO de los mocks.
+     Regla de la auditoría: el azul del producto vive en los
+     screenshots, nunca en el marketing de la página. */
+  --color-pmblue: #2563eb;
+  --color-pmblue2: #3b82f6;
+  --color-pmpurple: #8b5cf6;
+  --color-pmorange: #f97316;
+  --color-pmgreen: #16a34a;
+  --color-pmlime: #84cc16;
+  --color-pmamber: #f59e0b;
+  --color-pmred: #ef4444;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+  /* Tipografía del producto real — solo dentro de los mocks */
+  --font-product: "Poppins", "Inter", ui-sans-serif, sans-serif;
+
+  --ease-brand: cubic-bezier(0.21, 0.47, 0.32, 0.98);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-surface font-sans text-ink antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Eyebrow mono — gesto compartido del ecosistema */
+.eyebrow {
+  @apply font-mono text-[11px] font-semibold tracking-[0.18em] uppercase;
+}
+
+/* Hero night de Club Manager — centro de control. Aurora teal
+   sobria sobre night; nada de mesh claro (ese es del jugador). */
+.hero-night-cm {
+  background:
+    radial-gradient(64rem 36rem at 82% -14%, rgba(52, 211, 153, 0.14), transparent 62%),
+    radial-gradient(52rem 30rem at -12% 22%, rgba(187, 244, 81, 0.07), transparent 58%),
+    radial-gradient(44rem 28rem at 55% 112%, rgba(52, 211, 153, 0.08), transparent 60%),
+    var(--color-night);
+}
+
+/* Blobs de aurora animados del hero (solo transform, blur alto) */
+@keyframes drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(90px, -50px) scale(1.15);
+  }
+  66% {
+    transform: translate(-60px, 40px) scale(0.9);
+  }
+}
+@keyframes drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  40% {
+    transform: translate(-100px, 60px) scale(1.2);
+  }
+  75% {
+    transform: translate(50px, -40px) scale(0.9);
+  }
+}
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  pointer-events: none;
+  will-change: transform;
+}
+.aurora-a {
+  animation: drift-a 18s ease-in-out infinite;
+}
+.aurora-b {
+  animation: drift-b 22s ease-in-out infinite;
+}
+
+/* Ticker de actividad del club (gesto compartido con matchpro.tv) */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee 38s linear infinite;
+  will-change: transform;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Banda azul del producto (mocks): degradado + rayado de cancha
+   en UN solo background — dos clases separadas se pisan entre sí. */
+.pm-band {
+  background:
+    linear-gradient(
+      115deg,
+      transparent 0 42%,
+      rgba(255, 255, 255, 0.14) 42% 43%,
+      transparent 43% 68%,
+      rgba(255, 255, 255, 0.1) 68% 69%,
+      transparent 69%
+    ),
+    linear-gradient(90deg, var(--color-pmblue), var(--color-pmblue2));
+}
+
+/* Marquee lento para la franja de clientes */
+.marquee-slow .marquee-track {
+  animation-duration: 52s;
+}
+
+/* Fondo night con scrim teal confinado al top (variante CM) */
+.night-cm {
+  background:
+    linear-gradient(to bottom, rgba(52, 211, 153, 0.08), transparent 280px),
+    var(--color-night);
+}
+
+/* Grano sutil editorial (heredado) */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Carrusel snap (dolores, logos) — CSS nativo, sin JS */
+.snap-row {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.snap-row::-webkit-scrollbar {
+  display: none;
+}
+.snap-item {
+  scroll-snap-align: start;
+}
+
+/* Pulso de vibración del Apple Watch (ScoreMatch: "lo sientes, no lo miras") */
+@keyframes haptic {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+.haptic-ring {
+  animation: haptic 2.2s cubic-bezier(0.21, 0.47, 0.32, 0.98) infinite;
+}
+
+/* Pantalla de MatchPro TV: el azul-noche del producto real */
+.tv-screen {
+  background:
+    radial-gradient(130% 130% at 18% -10%, #16305a 0%, #0c1c38 52%, #081226 100%);
+}
+/* Glow teal de las cards de vinculación (código y QR) */
+.tv-glow {
+  box-shadow: 0 0 24px rgba(45, 212, 191, 0.35);
+}
+
+/* Tintes suaves para secciones claras — rompen la planicie sin gritar */
+.tint-teal {
+  background:
+    radial-gradient(44rem 22rem at 12% -4%, rgba(52, 211, 153, 0.09), transparent 60%),
+    var(--color-surface);
+}
+.tint-lime {
+  background:
+    radial-gradient(44rem 22rem at 88% -4%, rgba(187, 244, 81, 0.13), transparent 60%),
+    var(--color-surface);
+}
+
+::selection {
+  background: var(--color-limebrand);
+  color: var(--color-limeink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .aurora-blob,
+  .marquee-track,
+  .haptic-ring {
+    animation: none;
+  }
+}
+
+/* ─── Sales App: impresión (leave-behind PDF) ─────────────────── */
+@media print {
+  .no-print { display: none !important; }
+  .print-slide { break-after: page; page-break-after: always; }
+  body { background: white; }
+}
+
+/* ─── Sliders custom (los nativos se ven con borde negro) ────── */
+.range-pro {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--color-limebrand) var(--pct, 50%), var(--color-line) var(--pct, 50%));
+  outline: none;
+  cursor: pointer;
+}
+.range-dark {
+  background: linear-gradient(to right, var(--color-limebrand) var(--pct, 50%), rgba(255, 255, 255, 0.12) var(--pct, 50%));
+}
+.range-pro::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 4px solid var(--color-limebrand);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+.range-pro::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 4px solid var(--color-limebrand);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+.range-pro:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
