@@ -1,0 +1,5 @@
+.DS_Store
+.claude/
+node_modules/
+# Binarios de Figma: demasiado grandes para GitHub (límite 100MB)
+*.fig
