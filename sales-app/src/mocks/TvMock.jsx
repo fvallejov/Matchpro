@@ -7,7 +7,8 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { EASE, ladderSpring } from "../motion";
 import { useClub } from "../club";
-import { FakeQR } from "./PanelMocks";
+import { Icon } from "../icons";
+import qrDark from "../assets/qr-dark.svg";
 import isotipo from "../assets/isotipo.svg";
 
 const TV_CHIP_STYLE = {
@@ -35,7 +36,7 @@ const COPA_MATCHES = [
 const POS_STATS = ["24 PJ · 78%", "21 PJ · 71%", "23 PJ · 69%", "19 PJ · 64%", "17 PJ · 58%"];
 
 const CUMPLES = [
-  ["VC", "V. Contreras", "Hoy · 38 años 🎉"],
+  ["VC", "V. Contreras", "Hoy · 38 años"],
   ["MS", "M. Salgado", "Sáb 28 · 41 años"],
 ];
 
@@ -54,8 +55,8 @@ function ModuloTV({ icon, iconBg, title, children, className = "" }) {
   return (
     <div className={`rounded-md bg-white/[0.05] p-1.5 ring-1 ring-white/10 ${className}`}>
       <p className="flex items-center gap-1 text-[6.5px] font-bold text-white">
-        <span className={`flex h-3 w-3 items-center justify-center rounded-[4px] text-[6px] ${iconBg}`} aria-hidden="true">
-          {icon}
+        <span className={`flex h-3 w-3 items-center justify-center rounded-[4px] text-white ${iconBg}`} aria-hidden="true">
+          <Icon name={icon} className="h-2 w-2" />
         </span>
         {title}
       </p>
@@ -81,7 +82,7 @@ function HeaderTV({ club }) {
 function ModEstadoCanchas({ compact }) {
   const visibles = compact ? CANCHAS_TV.slice(0, 4) : CANCHAS_TV;
   return (
-    <ModuloTV icon="🎾" iconBg="bg-teal-500/70" title="Estado de Canchas" className="h-full">
+    <ModuloTV icon="ball" iconBg="bg-teal-500/70" title="Estado de Canchas" className="h-full">
       <div className={`mt-1 grid gap-1 ${compact ? "grid-cols-2" : "grid-cols-3"}`}>
         {visibles.map(([c, dep, est, extra]) => (
           <div key={c} className="rounded-sm bg-white/[0.05] px-1 py-[3px]">
@@ -101,7 +102,7 @@ function ModEstadoCanchas({ compact }) {
 
 function ModCopa({ club }) {
   return (
-    <ModuloTV icon="🏆" iconBg="bg-purple-500/70" title={`Copa ${club.corto}`} className="h-full">
+    <ModuloTV icon="trophy" iconBg="bg-purple-500/70" title={`Copa ${club.corto}`} className="h-full">
       <div className="mt-0.5 flex items-center justify-between">
         <p className="text-[5px] text-white/45">Eliminación Simple · Cuartos de final</p>
         <p className="text-[5px] font-bold text-[#c084fc]">6/8 jugados</p>
@@ -135,7 +136,7 @@ function ModPosiciones({ big }) {
   const filas = POS_FILAS.slice(0, big ? 5 : 3);
   return (
     <ModuloTV
-      icon="🏆"
+      icon="trophy"
       iconBg="bg-yellow-500/70"
       title={big ? "Tabla de Posiciones · Ranking en vivo" : "Tabla de Posiciones"}
       className="flex h-full flex-col"
@@ -183,7 +184,7 @@ function ModPosiciones({ big }) {
 
 function ModMarcador() {
   return (
-    <ModuloTV icon="🎾" iconBg="bg-sky-500/70" title="Marcador en Vivo · Cancha 2" className="h-full">
+    <ModuloTV icon="ball" iconBg="bg-sky-500/70" title="Marcador en Vivo · Cancha 2" className="h-full">
       <div className="mt-1 flex flex-col gap-[3px]">
         {[
           ["L. Gutiérrez", ["6", "4", "40"], true],
@@ -216,7 +217,7 @@ function ModMarcador() {
 
 function ModCumple() {
   return (
-    <ModuloTV icon="🎁" iconBg="bg-pink-500/70" title="Próximos Cumpleaños" className="h-full">
+    <ModuloTV icon="gift" iconBg="bg-pink-500/70" title="Próximos Cumpleaños" className="h-full">
       <div className="mt-1 flex flex-col gap-1">
         {CUMPLES.map(([ini, n, f]) => (
           <div key={n} className="flex items-center gap-1.5 rounded-sm bg-white/[0.05] px-1 py-[3px]">
@@ -237,7 +238,7 @@ function ModCumple() {
 function ModExtras() {
   return (
     <div className="flex h-full flex-col gap-1.5">
-      <ModuloTV icon="📣" iconBg="bg-orange-500/70" title="Sponsors" className="flex-1">
+      <ModuloTV icon="megaphone" iconBg="bg-orange-500/70" title="Sponsors" className="flex-1">
         <div className="mt-0.5 flex flex-col gap-[2px] text-[5.5px]">
           <p className="flex justify-between">
             <span className="font-extrabold tracking-wide text-white/85">BABOLAT</span>
@@ -249,9 +250,9 @@ function ModExtras() {
           </p>
         </div>
       </ModuloTV>
-      <ModuloTV icon="▦" iconBg="bg-sky-500/70" title="QR Reservas" className="flex-1">
+      <ModuloTV icon="qr" iconBg="bg-sky-500/70" title="QR Reservas" className="flex-1">
         <div className="mt-0.5 flex items-center gap-1.5">
-          <FakeQR className="h-6 w-6 rounded-[2px]" light="#cbd5e1" dark="#0c1c38" />
+          <img src={qrDark} alt="" className="h-6 w-6 rounded-[2px]" aria-hidden="true" />
           <p className="text-[5px] leading-tight text-white/50">Escanea y reserva desde tu celular</p>
         </div>
       </ModuloTV>
@@ -338,7 +339,7 @@ function CodigoVinculacion() {
           <p className="mt-1.5 text-[7px] text-white/50">◷ El código expira en 14:58</p>
         </div>
         <div className="tv-glow flex flex-col items-center justify-center self-center rounded-xl bg-[#0f2a52]/80 p-3 ring-1 ring-[#2dd4bf]/40">
-          <FakeQR className="h-[5.25rem] w-[5.25rem] rounded-md" />
+          <img src={qrDark} alt="" className="h-[5.25rem] w-[5.25rem] rounded-md" aria-hidden="true" />
           <p className="mt-1.5 text-[6.5px] text-white/60">Escanea con tu celular</p>
         </div>
       </div>

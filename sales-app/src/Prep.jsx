@@ -11,8 +11,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { derivar, configAQuery } from "./club";
-import { clp, NEGOCIACION, DESC_ANUAL, COMISION_PISO } from "./pricing";
+import { derivar, configAQuery, empacar } from "./club";
+import { clp, ufa, UF_CLP, NEGOCIACION, DESC_ANUAL, COMISION_PISO } from "./pricing";
 import { Range } from "./ui";
 import { registrarReunion } from "./Bitacora";
 import Resumen from "./Resumen";
@@ -54,7 +54,7 @@ const inputCls =
 /* Slider + valor editable: el número escrito DEFINE el máximo del
    slider y ese máximo queda fijo (sticky) — deslizar después no lo
    reduce, así el recorrido es consistente. */
-function NumField({ label, value, onChange, min = 0, max, step = 1, fmt, unit = "", hint = "" }) {
+function NumField({ label, value, onChange, min = 0, max, step = 1, fmt, unit = "", hint = "", disabled = false }) {
   const [topMax, setTopMax] = useState(() => Math.max(max, value));
   const escribir = (v) => {
     const nv = Math.max(min, v);
@@ -63,16 +63,17 @@ function NumField({ label, value, onChange, min = 0, max, step = 1, fmt, unit = 
   };
   const sliderMax = topMax;
   return (
-    <div>
+    <div className={disabled ? "opacity-35 select-none" : ""}>
       <span className="block text-[10.5px] font-bold tracking-wide text-nightsecond uppercase">{label}</span>
       <div className="mt-2 flex items-center gap-3">
-        <Range min={min} max={sliderMax} step={step} value={value} onChange={onChange} dark className="flex-1" />
+        <Range min={min} max={sliderMax} step={step} value={value} onChange={onChange} dark disabled={disabled} className="flex-1" />
         <span className="flex shrink-0 items-center gap-1">
           <input
             type="number"
             min={min}
             step={step}
             value={value}
+            disabled={disabled}
             onChange={(e) => escribir(Number(e.target.value) || 0)}
             className={`${inputCls} w-24 px-2 py-1 text-right font-mono text-[12px]`}
           />
@@ -121,12 +122,29 @@ function sugerir(config) {
   return { ...r, laminas, dctoMeses: 6 };
 }
 
+/* Primera reunión SIN datos del club: descubrimiento, no pitch. El
+   objetivo es calificar y ganarse la segunda reunión, no cerrar ni
+   cotizar. Set mínimo, precio fuera (Calculadora se difiere; la
+   Propuesta queda porque está bloqueada, no se presenta). El perfil
+   se elige EN VIVO en el Diagnóstico; el resto se salta por índice. */
+const RECETA_DESCUBRIMIENTO = {
+  laminas: ["problema", "panel", "comparativa", "implementacion"],
+  mesesGratis: 0,
+  dcto: 0,
+  dctoMeses: 6,
+  motivo:
+    "Primera reunión sin datos del club: descubrimiento, no presentación. Set mínimo — Diagnóstico en vivo + dos pruebas que no dependen de sus números (El panel, Mercado) + Implementación (confianza y soporte). La Calculadora queda fuera y el precio se difiere: se arman con sus datos para la segunda reunión. Salta a cualquier lámina por el índice según lo que pregunten.",
+};
+
 /* ── Panel ──────────────────────────────────────────────────── */
 
 export default function Prep({ config, setConfig, slides, onClose }) {
   const [copiado, setCopiado] = useState("");
   const [motivo, setMotivo] = useState("");
   const [preview, setPreview] = useState(false);
+  const [contraOn, setContraOn] = useState(
+    () => config.feex > 0 || config.mgx > 0 || config.dctox > 0,
+  );
   const laminas = config.laminas ?? slides.map((s) => s.id);
 
   const set = (patch) => setConfig((c) => ({ ...c, ...patch }));
@@ -154,14 +172,32 @@ export default function Prep({ config, setConfig, slides, onClose }) {
   const aplicarSugerencia = () => {
     const s = sugerir(config);
     set({ laminas: s.laminas, mesesGratis: s.mesesGratis, dcto: s.dcto, dctoMeses: s.dctoMeses });
-    setMotivo(s.motivo);
+    setMotivo(`${s.motivo} (según perfil "${config.perfil}" y tamaño: ${config.canchas} canchas)`);
   };
+
+  /* Receta de primera reunión: no toca el perfil (se elige en vivo). */
+  const aplicarDescubrimiento = () => {
+    const r = RECETA_DESCUBRIMIENTO;
+    set({ laminas: r.laminas, mesesGratis: r.mesesGratis, dcto: r.dcto, dctoMeses: r.dctoMeses });
+    setMotivo(r.motivo);
+  };
+
+  /* ¿La configuración actual ES la sugerida? El botón lo refleja. */
+  const sug = sugerir(config);
+  const mismasLaminas = (a) =>
+    config.laminas != null && [...config.laminas].sort().join(",") === [...a].sort().join(",");
+  const esSugerida =
+    mismasLaminas(sug.laminas) && config.mesesGratis === sug.mesesGratis && config.dcto === sug.dcto;
+  const esDescubrimiento =
+    mismasLaminas(RECETA_DESCUBRIMIENTO.laminas) && config.mesesGratis === 0 && config.dcto === 0;
 
   /* base desde href (window.location.origin es "null" al abrir el
      archivo con doble clic — rompía el botón "Ver ↗") */
   const base = window.location.href.split(/[?#]/)[0];
-  const link = `${base}?${configAQuery(config)}`;
-  const linkResumen = `${base}?${configAQuery(config)}&modo=resumen`;
+  /* Links opacos: un solo parámetro codificado y firmado — sin
+     campos legibles ni editables a mano */
+  const link = `${base}?d=${empacar(`${configAQuery(config)}&modo=cliente`)}`;
+  const linkResumen = `${base}?d=${empacar(`${configAQuery(config)}&modo=resumen`)}`;
 
   const copiar = async (texto, tag) => {
     try {
@@ -197,11 +233,27 @@ export default function Prep({ config, setConfig, slides, onClose }) {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={aplicarSugerencia}
-              className="rounded-full bg-tealbrand/15 px-4 py-2 text-[12px] font-bold text-tealbrand ring-1 ring-tealbrand/30 transition-colors hover:bg-tealbrand/25"
-              title="Sugiere láminas y concesiones según perfil y tamaño del club"
+              onClick={aplicarDescubrimiento}
+              className={`rounded-full px-4 py-2 text-[12px] font-bold ring-1 transition-colors ${
+                esDescubrimiento
+                  ? "bg-limebrand/15 text-limebrand ring-limebrand/40"
+                  : "bg-white/5 text-nightsecond ring-white/15 hover:bg-white/10 hover:text-white"
+              }`}
+              title="Primera reunión sin datos del club: set mínimo de descubrimiento (Diagnóstico en vivo + El panel + Mercado + Implementación), sin precio ni concesiones. Calificar y ganar la segunda reunión."
             >
-              ✦ Sugerir configuración
+              {esDescubrimiento ? "✓ Primera reunión" : "◇ Primera reunión"}
+            </button>
+            <button
+              type="button"
+              onClick={aplicarSugerencia}
+              className={`rounded-full px-4 py-2 text-[12px] font-bold ring-1 transition-colors ${
+                esSugerida
+                  ? "bg-limebrand/15 text-limebrand ring-limebrand/40"
+                  : "bg-tealbrand/15 text-tealbrand ring-tealbrand/30 hover:bg-tealbrand/25"
+              }`}
+              title="Sugiere láminas y concesiones según el perfil de diagnóstico y el tamaño del club (canchas)"
+            >
+              {esSugerida ? "✓ Configuración sugerida" : "✦ Sugerir configuración"}
             </button>
             <button
               type="button"
@@ -257,33 +309,30 @@ export default function Prep({ config, setConfig, slides, onClose }) {
 
         {/* 2 · La reunión */}
         <Seccion titulo="2 · La reunión" nota="aparece en la portada y en el resumen; viaja en el link">
-          <div className="mt-3 grid gap-x-8 gap-y-6 sm:grid-cols-2">
-            <label className="block">
-              <span className="mb-1 block text-[10.5px] font-bold tracking-wide text-nightsecond uppercase">
-                Contacto (con quién es la reunión)
-              </span>
-              <input
-                className={`${inputCls} w-full`}
-                value={config.contacto}
-                placeholder="Nombre y apellido"
-                onChange={(e) => set({ contacto: e.target.value })}
-              />
-            </label>
-            <div className="grid grid-cols-2 gap-3">
+          {/* Dos bloques rotulados: quién presenta (tu lado) vs con quién
+              te reúnes (el club). Antes iban mezclados y "Cargo" parecía tuyo. */}
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl bg-white/[0.03] p-4 ring-1 ring-white/10">
+              <p className="mb-3 font-mono text-[9px] font-semibold tracking-[0.18em] text-limebrand uppercase">
+                Tu equipo · MatchPro
+              </p>
               <label className="block">
                 <span className="mb-1 block text-[10.5px] font-bold tracking-wide text-nightsecond uppercase">
-                  Cargo
+                  Quién presenta
                 </span>
                 <input
                   className={`${inputCls} w-full`}
-                  value={config.cargo}
-                  placeholder="Administrador…"
-                  onChange={(e) => set({ cargo: e.target.value })}
+                  value={config.vendedor}
+                  placeholder="Tu nombre"
+                  onChange={(e) => {
+                    set({ vendedor: e.target.value });
+                    localStorage.setItem("mp-vendedor", e.target.value);
+                  }}
                 />
               </label>
-              <label className="block">
+              <label className="mt-3 block">
                 <span className="mb-1 block text-[10.5px] font-bold tracking-wide text-nightsecond uppercase">
-                  Fecha reunión
+                  Fecha de la reunión
                 </span>
                 <input
                   type="date"
@@ -293,26 +342,57 @@ export default function Prep({ config, setConfig, slides, onClose }) {
                 />
               </label>
             </div>
-            <label className="block">
-              <span className="mb-1 block text-[10.5px] font-bold tracking-wide text-nightsecond uppercase">
-                Email o teléfono del contacto
-              </span>
-              <input
-                className={`${inputCls} w-full`}
-                value={config.fono}
-                placeholder="opcional"
-                onChange={(e) => set({ fono: e.target.value })}
+            <div className="rounded-2xl bg-white/[0.03] p-4 ring-1 ring-white/10">
+              <p className="mb-3 font-mono text-[9px] font-semibold tracking-[0.18em] text-tealbrand uppercase">
+                Tu contraparte · el club
+              </p>
+              <label className="block">
+                <span className="mb-1 block text-[10.5px] font-bold tracking-wide text-nightsecond uppercase">
+                  Nombre del contacto
+                </span>
+                <input
+                  className={`${inputCls} w-full`}
+                  value={config.contacto}
+                  placeholder="Nombre y apellido"
+                  onChange={(e) => set({ contacto: e.target.value })}
+                />
+              </label>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="mb-1 block text-[10.5px] font-bold tracking-wide text-nightsecond uppercase">
+                    Su cargo
+                  </span>
+                  <input
+                    className={`${inputCls} w-full`}
+                    value={config.cargo}
+                    placeholder="Administrador…"
+                    onChange={(e) => set({ cargo: e.target.value })}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[10.5px] font-bold tracking-wide text-nightsecond uppercase">
+                    Su email o teléfono
+                  </span>
+                  <input
+                    className={`${inputCls} w-full`}
+                    value={config.fono}
+                    placeholder="opcional"
+                    onChange={(e) => set({ fono: e.target.value })}
+                  />
+                </label>
+              </div>
+            </div>
+            <div className="sm:col-span-2 sm:max-w-xl">
+              <NumField
+                label="Validez de la propuesta"
+                value={config.validez}
+                onChange={(v) => set({ validez: Math.max(v, 1) })}
+                min={1}
+                max={90}
+                unit="días"
+                hint="Corre desde el día en que copias el link (la emisión queda sellada en él). La propuesta, el resumen y la bitácora muestran la fecha exacta de vencimiento."
               />
-            </label>
-            <NumField
-              label="Validez de la propuesta"
-              value={config.validez}
-              onChange={(v) => set({ validez: Math.max(v, 1) })}
-              min={1}
-              max={90}
-              unit="días"
-              hint="Corre desde el día en que copias el link (la emisión queda sellada en él). La propuesta, el resumen y la bitácora muestran la fecha exacta de vencimiento."
-            />
+            </div>
           </div>
         </Seccion>
 
@@ -497,29 +577,68 @@ export default function Prep({ config, setConfig, slides, onClose }) {
         </Seccion>
 
         {/* 5 · Contrapropuesta (excepción) */}
-        <Seccion titulo="8 · Contrapropuesta · excepción" nota="valores libres, rotulados y trazados en el link">
-          <div className="mt-3 grid gap-x-8 gap-y-6 sm:grid-cols-3">
-            <NumField label="Fee mensual excepcional" value={config.feex} onChange={(v) => set({ feex: v })} min={0} max={300000} step={5000} unit="CLP" />
-            <NumField label="Meses gratis excepcionales" value={config.mgx} onChange={(v) => set({ mgx: v, ...(v > 0 ? { mesesGratis: 0 } : {}) })} min={0} max={6} />
-            <div>
-              <NumField
-                label="Descuento excepcional (%)"
-                value={Math.round(config.dctox * 100)}
-                onChange={(v) => set({ dctox: Math.min(v, 90) / 100, ...(v > 0 ? { dcto: 0 } : {}) })}
-                min={0}
-                max={60}
-                step={5}
-                unit="%"
+        <Seccion titulo="8 · Contrapropuesta · excepción" nota="normalmente se arma DESPUÉS, desde la bitácora">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={contraOn}
+            onClick={() => {
+              if (contraOn) set({ feex: 0, mgx: 0, dctox: 0 });
+              setContraOn(!contraOn);
+            }}
+            className={`mt-3 flex items-center gap-2.5 rounded-full border px-4 py-2 text-[12px] font-bold transition-colors ${
+              contraOn
+                ? "border-pmamber/50 bg-pmamber/10 text-pmamber"
+                : "border-nightline text-nightsecond hover:text-white"
+            }`}
+          >
+            <span
+              className={`relative h-4 w-8 rounded-full transition-colors ${contraOn ? "bg-pmamber" : "bg-white/15"}`}
+              aria-hidden="true"
+            >
+              <span
+                className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${contraOn ? "left-[18px]" : "left-0.5"}`}
               />
-              {config.dctox > 0 && (
-                <NumField label="Duración (meses)" value={config.dmx || 6} onChange={(v) => set({ dmx: v })} min={1} max={24} unit="m" />
-              )}
-            </div>
+            </span>
+            {contraOn ? "Contrapropuesta ACTIVA en este link" : "Activar contrapropuesta (excepción)"}
+          </button>
+          {contraOn && (
+          <div className="mt-4 grid gap-x-8 gap-y-5 sm:grid-cols-2">
+            <NumField
+              label="Fee mensual excepcional"
+              value={config.feex}
+              onChange={(v) => set({ feex: v })}
+              min={0}
+              max={300000}
+              step={5000}
+              unit="CLP"
+              fmt={(v) => (v > 0 ? `≈ UF ${ufa(v / UF_CLP)}` : "0 = mantener precio de lista")}
+            />
+            <NumField label="Meses gratis excepcionales" value={config.mgx} onChange={(v) => set({ mgx: v, ...(v > 0 ? { mesesGratis: 0 } : {}) })} min={0} max={6} unit="m" />
+            <NumField
+              label="Descuento excepcional"
+              value={Math.round(config.dctox * 100)}
+              onChange={(v) => set({ dctox: Math.min(v, 90) / 100, ...(v > 0 ? { dcto: 0 } : {}) })}
+              min={0}
+              max={60}
+              step={5}
+              unit="%"
+            />
+            <NumField
+              label="Duración del descuento"
+              value={config.dmx || 6}
+              onChange={(v) => set({ dmx: v })}
+              min={1}
+              max={24}
+              unit="m"
+              disabled={config.dctox === 0}
+            />
           </div>
+          )}
           <p className="mt-2.5 font-mono text-[9.5px] leading-relaxed text-nightsecond">
             {hayExcepcion
-              ? "⚠ Esta propuesta incluye condiciones fuera de política: se rotulan como excepción, muestran el % equivalente y quedan registradas en el link."
-              : "En cero = sin excepción. Úsalo solo para contrapropuestas negociadas después de la reunión."}
+              ? "⚠ Contrapropuesta activa: el deck sigue mostrando la PROPUESTA — la excepción aparece solo en el RESUMEN enviable, rotulada y con % equivalente."
+              : "El flujo normal: presenta la propuesta, y la contrapropuesta se arma después desde la bitácora (botón Contrapropuesta), como documento nuevo con su propia validez."}
           </p>
         </Seccion>
 
@@ -591,8 +710,9 @@ export default function Prep({ config, setConfig, slides, onClose }) {
                 {copiado === "bit" ? "✓ Guardada" : "＋ Guardar en bitácora (R)"}
               </button>
               <p className="font-mono text-[9.5px] leading-relaxed text-nightsecond">
-                Presentación: la reunión completa · Resumen: 1 página con la propuesta, imprimible a PDF ·
-                Bitácora: registro local con estados y export CSV.
+                Presentación: para ENVIAR — sin los paneles internos (Preparar/Reuniones); el cliente
+                solo ve láminas, índice y PDF · Resumen: 1 página con la propuesta · Para presentar tú:
+                usa esta sesión o "Presentar" en la bitácora.
               </p>
             </div>
           </div>

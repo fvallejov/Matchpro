@@ -5,7 +5,7 @@
 
 import { motion } from "framer-motion";
 import { EASE } from "../motion";
-import { Reveal, RevealItem } from "../ui";
+import { Reveal, RevealItem, Accent } from "../ui";
 import { useClub } from "../club";
 
 /* ── Implementación y soporte — timeline horizontal ─────────── */
@@ -46,7 +46,7 @@ export function SlideImplementacion() {
         <Reveal>
           <p className="eyebrow text-limefg">Implementación y soporte</p>
           <h2 className="mt-2 max-w-3xl text-3xl font-bold tracking-tight text-balance text-inkstrong">
-            {club.corto} se desliga de la administración. <span className="text-limefg">Con confianza.</span>
+            {club.corto} se desliga de la administración. <Accent>Con confianza.</Accent>
           </h2>
         </Reveal>
 
@@ -103,7 +103,7 @@ const PROYECTOS = [
     "La app del jugador en iOS + Apple Watch: matchmaking, escalerillas y el módulo de tu club.",
   ],
   [
-    "CoachPro",
+    "CoachingPro",
     "En desarrollo",
     "Entrenadores del club: alumnos, clases, pagos y progreso deportivo.",
   ],

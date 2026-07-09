@@ -37,6 +37,7 @@ const REUNION = {
   perfil: "planillas", // diagnóstico: planillas | software | mixto
   // Nivel 1 · datos de la reunión (viajan en el link):
   contacto: "", // persona con quien es la reunión
+  vendedor: "", // quién está a cargo de la reunión (nuestro lado)
   cargo: "",
   fono: "", // email o teléfono
   fecha: "", // fecha de la reunión (yyyy-mm-dd)
@@ -71,8 +72,60 @@ export function derivar(nombre) {
   return { corto, iniciales };
 }
 
+/* ── Links opacos ─────────────────────────────────────────────
+   Toda la configuración viaja en UN parámetro (?d=…) codificado
+   y con firma de integridad: sin campos legibles ni editables a
+   mano. HONESTIDAD TÉCNICA: la sal vive en este archivo — evita
+   la edición casual, no es criptografía. Links cortos e
+   inviolables de verdad = acortador propio (ver
+   shortener-worker.js) cuando la app esté hosteada.          */
+
+const SAL = "mp·sales·2026";
+
+function firmar(texto) {
+  let h = 5381;
+  for (const c of texto + SAL) h = ((h * 33) ^ c.charCodeAt(0)) >>> 0;
+  return h.toString(36);
+}
+
+export function empacar(query) {
+  const payload = `${query}&h=${firmar(query)}`;
+  return btoa(String.fromCharCode(...new TextEncoder().encode(payload)))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
+}
+
+function desempacar(d) {
+  try {
+    const b64 = d.replaceAll("-", "+").replaceAll("_", "/");
+    const bin = atob(b64.padEnd(b64.length + ((4 - (b64.length % 4)) % 4), "="));
+    const payload = new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+    const i = payload.lastIndexOf("&h=");
+    if (i < 0) return { query: payload, integro: false };
+    const query = payload.slice(0, i);
+    const h = payload.slice(i + 3);
+    return { query, integro: firmar(query) === h };
+  } catch {
+    return { query: "", integro: false };
+  }
+}
+
 export function configDesdeURL() {
-  const p = new URLSearchParams(window.location.search);
+  return configDesdeQuery(window.location.search);
+}
+
+/** Parsea una query (con o sin payload `d=` empacado) a configuración.
+ *  La usa la bitácora para aplicar un registro SIN recargar la página. */
+export function configDesdeQuery(search) {
+  let p = new URLSearchParams(search);
+  let alterado = false;
+  const d = p.get("d");
+  if (d) {
+    const { query, integro } = desempacar(d);
+    p = new URLSearchParams(query);
+    alterado = !integro;
+  }
   const base = CLUBES[p.get("club")] ?? CLUBES.demo;
   const num = (k) => (Number(p.get(k)) > 0 ? Number(p.get(k)) : undefined);
   const nombre = p.get("nombre")
@@ -91,6 +144,7 @@ export function configDesdeURL() {
     deportes: p.get("deportes") ?? base.deportes,
     perfil: ["planillas", "software", "mixto"].includes(p.get("perfil")) ? p.get("perfil") : REUNION.perfil,
     contacto: p.get("cto") ?? "",
+    vendedor: p.get("vnd") ?? localStorage.getItem("mp-vendedor") ?? "",
     cargo: p.get("cargo") ?? "",
     fono: p.get("fono") ?? "",
     fecha: p.get("fecha") ?? "",
@@ -115,6 +169,9 @@ export function configDesdeURL() {
     tarifa: num("tarifa") ?? REUNION.tarifa,
     torneos: num("torneos") ?? REUNION.torneos,
     laminas: p.get("laminas") ? p.get("laminas").split(",") : null,
+    cliente: p.get("modo") === "cliente", // link enviado: sin paneles internos
+    modoResumen: p.get("modo") === "resumen", // el modo viaja dentro del payload empacado
+    alterado, // el payload no coincide con su firma → link manipulado
   };
 }
 
@@ -127,6 +184,7 @@ export function configAQuery(c) {
   if (c.deportes) p.set("deportes", c.deportes);
   if (c.perfil && c.perfil !== REUNION.perfil) p.set("perfil", c.perfil);
   if (c.contacto) p.set("cto", c.contacto);
+  if (c.vendedor) p.set("vnd", c.vendedor);
   if (c.cargo) p.set("cargo", c.cargo);
   if (c.fono) p.set("fono", c.fono);
   if (c.fecha) p.set("fecha", c.fecha);
@@ -162,6 +220,17 @@ export function fechaVencimiento(c) {
   const d = new Date(`${c.em || hoyISO()}T12:00:00`);
   d.setDate(d.getDate() + (c.validez ?? 30));
   return d.toISOString().slice(0, 10);
+}
+
+/** Estado de la validez sellada en el link. Solo aplica si hay
+ *  emisión (em): un link nunca copiado no puede vencer. Es un
+ *  chequeo del lado del cliente — el link NO muere: lo que caduca
+ *  es la CONDICIÓN; el precio de lista y el CTA siguen vivos. */
+export function estadoValidez(c) {
+  if (!c.em) return { vencida: false, dias: null, vence: null };
+  const vence = fechaVencimiento(c);
+  const dias = Math.floor((new Date(`${vence}T23:59:59`) - Date.now()) / 86400000);
+  return { vencida: dias < 0, dias, vence };
 }
 
 /** Fecha de reunión legible ("14 de agosto") desde yyyy-mm-dd. */

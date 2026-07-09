@@ -5,46 +5,46 @@
 // ─────────────────────────────────────────────────────────────
 
 import { Reveal, RevealItem, CtaPair, Lockup } from "../ui";
-import { useClub, fechaLegible, fechaVencimiento } from "../club";
+import { useClub, fechaLegible, fechaVencimiento, estadoValidez } from "../club";
 import { cotizar, clp, ufa } from "../pricing";
+import { Icon } from "../icons";
 
 const FECHA = new Date().toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" });
 
 const COMPROMISOS = [
-  ["Sin permanencia", "Usas la plataforma porque te conviene, no porque estás atado."],
-  ["Operativo el mismo día", "Configuramos canchas, tarifas y socios contigo. Migramos tus planillas."],
-  ["Soporte humano", "Equipo directo por WhatsApp, con experiencia en clubes de raqueta."],
-  ["Pagos certificados", "Transbank (PCI DSS), transferencias semanales automáticas al club."],
+  ["key", "Sin permanencia", "Usas la plataforma porque te conviene, no porque estás atado."],
+  ["clock", "Operativo el mismo día", "Configuramos canchas, tarifas y socios contigo. Migramos tus planillas."],
+  ["phone", "Soporte humano", "Equipo directo por WhatsApp, con experiencia en clubes de raqueta."],
+  ["lock", "Pagos certificados", "Transbank (PCI DSS), transferencias semanales automáticas al club."],
 ];
 
 export default function Propuesta() {
   const club = useClub();
   const q = cotizar({ canchas: club.canchas, gmv: club.gmv, ticket: club.ticket, com: { fijo: club.cfijo, pct: club.cpct } });
-  /* Concesión efectiva: la excepción (si existe) reemplaza al menú */
-  const excepcion = (club.feex ?? 0) > 0 || (club.mgx ?? 0) > 0 || (club.dctox ?? 0) > 0;
-  const mg = club.mgx || club.mesesGratis || 0;
-  const dcto = club.dctox || club.dcto || 0;
-  const dm = club.dctox ? club.dmx || 6 : club.dctoMeses;
+  /* La lámina del deck es SIEMPRE la Propuesta (concesiones del
+     menú sancionado). La contrapropuesta/excepción vive solo en
+     el RESUMEN enviable — se arma después, desde la bitácora. */
+  const mg = club.mesesGratis || 0;
+  const dcto = club.dcto || 0;
+  const dm = club.dctoMeses;
   const feeConDcto = q.fee * (1 - dcto);
-  const feex = club.feex ?? 0;
-  const pctEquiv = feex > 0 ? Math.round((1 - feex / q.fee) * 100) : Math.round(dcto * 100);
+  /* La condición caduca; la lámina no. Vencida: título neutro,
+     sin chips de concesión, precio de lista intacto. */
+  const val = estadoValidez(club);
+  const concesionViva = (mg > 0 || dcto > 0) && !val.vencida;
 
   const titulo =
-    feex > 0 ? (
-      <>
-        Contrapropuesta para {club.corto}. <em className="text-limebrand">Condición especial.</em>
-      </>
-    ) : mg > 0 ? (
+    concesionViva && mg > 0 ? (
       <>
         Parte con {mg} mes{mg > 1 ? "es" : ""} gratis. <em className="text-limebrand">Sin riesgo.</em>
       </>
-    ) : dcto > 0 ? (
+    ) : concesionViva && dcto > 0 ? (
       <>
         Condiciones preferentes para partir. <em className="text-limebrand">Por tiempo limitado.</em>
       </>
     ) : (
       <>
-        Partamos este mes. <em className="text-limebrand">Sin permanencia.</em>
+        Partamos este mes. <em className="text-limebrand">Te quedas si te sirve.</em>
       </>
     );
 
@@ -80,26 +80,32 @@ export default function Propuesta() {
                   </span>
                 </div>
 
-                {/* Concesiones de esta propuesta */}
-                {(mg > 0 || dcto > 0 || feex > 0) && (
+                {/* Concesión vencida: aviso sobrio, lista intacta */}
+                {(mg > 0 || dcto > 0) && val.vencida && (
+                  <div className="mt-4 border-t border-line pt-4">
+                    <p className="text-[13px] font-bold text-inkstrong">
+                      La condición de esta propuesta venció el {fechaLegible(val.vence)}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-second">
+                      el precio de lista se mantiene — conversemos para renovarla
+                    </p>
+                  </div>
+                )}
+
+                {/* Concesiones de esta propuesta (menú sancionado) */}
+                {concesionViva && (
                   <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">
-                    {feex > 0 && (
-                      <span className="rounded-full bg-pmamber px-3.5 py-1.5 text-[13px] font-bold text-white">
-                        Condición especial: fee {clp(feex)}/mes (−{pctEquiv}% vs lista)
-                      </span>
-                    )}
                     {mg > 0 && (
                       <span className="rounded-full bg-limebrand px-3.5 py-1.5 text-[13px] font-bold text-limeink">
                         {mg} mes{mg > 1 ? "es" : ""} gratis al partir
                       </span>
                     )}
-                    {feex === 0 && dcto > 0 && (
+                    {dcto > 0 && (
                       <span className="rounded-full bg-limebrand px-3.5 py-1.5 text-[13px] font-bold text-limeink">
                         Fee −{Math.round(dcto * 100)}% por {dm} meses → {clp(feeConDcto)}/mes
                       </span>
                     )}
                     <span className="self-center font-mono text-[10px] text-mutedink">
-                      {excepcion ? "excepción a la política · aprobada por dirección · " : ""}
                       luego precio de lista{mg > 0 ? " · comisiones corren desde el día 1" : ""}
                     </span>
                   </div>
@@ -137,18 +143,26 @@ export default function Propuesta() {
               {/* Compromisos + CTA */}
               <div className="flex flex-col justify-between gap-5">
                 <div className="grid gap-3">
-                  {COMPROMISOS.map(([t, d]) => (
-                    <div key={t} className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
-                      <p className="text-sm font-bold text-white">{t}</p>
-                      <p className="mt-0.5 text-xs leading-relaxed text-nightsecond">{d}</p>
+                  {COMPROMISOS.map(([ic, t, d]) => (
+                    <div key={t} className="flex items-start gap-3.5 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+                      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-limebrand/15 text-limebrand">
+                        <Icon name={ic} className="h-4 w-4" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-bold text-white">{t}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-nightsecond">{d}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
                 <div>
                   <CtaPair dark className="no-print" />
                   <p className="mt-4 font-mono text-[10px] text-nightsecond">
-                    Propuesta referencial · válida hasta el {fechaLegible(fechaVencimiento(club))} ·
-                    comisión + IVA según transacciones
+                    Propuesta referencial ·{" "}
+                    {val.vencida
+                      ? `condición vencida el ${fechaLegible(val.vence)} — renovable`
+                      : `válida hasta el ${fechaLegible(fechaVencimiento(club))}`}{" "}
+                    · comisión + IVA según transacciones
                   </p>
                 </div>
               </div>

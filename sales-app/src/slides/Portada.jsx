@@ -53,7 +53,7 @@ export default function Portada() {
                 <Lockup dark className="h-5" />
               </span>
               <p className="no-print font-mono text-[11px] text-nightsecond">
-                → avanzar · G índice · E preparar · F pantalla completa
+                → avanzar · G índice{!club.cliente && " · E preparar"} · F pantalla completa
               </p>
             </div>
           </RevealItem>

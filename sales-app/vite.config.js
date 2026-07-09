@@ -8,6 +8,7 @@ import { viteSingleFile } from "vite-plugin-singlefile";
 // (file://) y enviar por WhatsApp/email como un único archivo.
 export default defineConfig({
   base: "./",
+  server: { port: Number(process.env.PORT) || 5173 },
   plugins: [react(), tailwindcss(), viteSingleFile()],
   build: {
     assetsInlineLimit: 100_000_000, // inline TODO asset importado (capturas de la app incluidas)

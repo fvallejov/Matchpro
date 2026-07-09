@@ -173,7 +173,7 @@ export function SlideExplora() {
         <Reveal>
           <p className="eyebrow text-tealbrand">Explora el ecosistema</p>
           <h2 className="mt-2 max-w-3xl text-3xl font-bold tracking-tight text-balance text-white">
-            Un solo ecosistema. <em className="text-limebrand">Cuatro formas de vivirlo.</em>
+            Un solo ecosistema. <em className="text-limebrand">Todo juega junto.</em>
           </h2>
         </Reveal>
 
@@ -204,16 +204,35 @@ export function SlideExplora() {
                   <em className="text-limebrand">{claim[1]}</em>
                 </h3>
                 <p className="relative mt-2 flex-1 text-[12.5px] leading-relaxed text-nightsecond">{d}</p>
-                <span className="relative mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-limebrand px-4 py-1.5 text-[12px] font-bold text-limeink transition-transform group-hover:translate-x-1">
-                  {corta} →
-                </span>
+                <div className="relative mt-4 flex items-center justify-between gap-3">
+                  <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-limebrand px-4 py-1.5 text-[12px] font-bold text-limeink transition-transform group-hover:translate-x-1">
+                    Visitar sitio →
+                  </span>
+                  <span className="truncate font-mono text-[9.5px] text-nightsecond/80">{corta}</span>
+                </div>
               </a>
             </RevealItem>
           ))}
         </Reveal>
 
         <Reveal>
-          <p className="mt-6 text-center font-mono text-[10px] text-nightsecond">
+          <p className="mt-4 text-center">
+            <a
+              href="https://youtu.be/PYDsLlWsREs"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-1.5 text-[12px] font-bold text-white ring-1 ring-white/15 transition-colors hover:ring-limebrand/50"
+            >
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-limebrand text-[8px] text-limeink">▶</span>
+              Mira Club Manager por dentro · video de 2 minutos
+            </a>
+          </p>
+          <p className="mt-3 text-center text-[12px] text-nightsecond">
+            También en el ecosistema: <span className="font-bold text-white">TrueRank</span> — el motor del
+            ranking (lámina TrueRank de esta presentación) · <span className="font-bold text-white">CoachingPro</span> —
+            entrenadores del club, <span className="text-tealbrand">en desarrollo</span>
+          </p>
+          <p className="mt-2 text-center font-mono text-[10px] text-nightsecond/70">
             Links clicables en la versión enviada y en el PDF — compártelos con tu directorio.
           </p>
         </Reveal>

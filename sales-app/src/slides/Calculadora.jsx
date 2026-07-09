@@ -3,7 +3,7 @@
 // derecha. La comparación de mercado vive en sus propias
 // láminas (tabla y gráfico) — aquí solo el precio del club.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Reveal, CountUp, Range } from "../ui";
 import { useClub } from "../club";
 import { cotizar, comisionTx, clp, ufa, UF_CLP, DESC_ANUAL } from "../pricing";
@@ -58,6 +58,11 @@ export default function Calculadora() {
   /* Máximos consistentes con lo configurado en Preparar */
   const [maxCanchas] = useState(() => Math.max(14, club.canchas));
   const [maxGmv] = useState(() => Math.max(10000000, club.gmv));
+  /* La lámina es interactiva (el vendedor mueve los sliders en vivo),
+     pero Preparar redefine la base: si se edita durante la reunión
+     hay que re-sembrar el estado local, no solo al montar. */
+  useEffect(() => setCanchas(club.canchas), [club.canchas]);
+  useEffect(() => setGmv(club.gmv), [club.gmv]);
 
   const com = { fijo: club.cfijo, pct: club.cpct };
   const q = cotizar({ canchas, gmv, ticket: club.ticket, soloCompetencia, anual, com });

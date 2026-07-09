@@ -2,41 +2,42 @@
 // tienen el mismo problema: el presentador elige el perfil en
 // vivo (o lo preconfigura en Preparar) y los dolores cambian.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { EASE } from "../motion";
 import { Reveal } from "../ui";
 import { useClub } from "../club";
+import { Icon } from "../icons";
 
 export const PERFILES = {
   planillas: {
     label: "Personas y planillas",
     sub: "Cuaderno, WhatsApp y Excel — todo depende de alguien",
     dolores: [
-      ["📓", "Doble arriendo de canchas", "Dos reservas para la misma hora porque el cuaderno y el WhatsApp no conversan. El socio que llega y no puede jugar no siempre vuelve."],
-      ["💸", "Pagos no anotados", "Transferencias que nadie registró, morosidad invisible y cobros incómodos meses después."],
-      ["🧍", "Todo depende de una persona", "Si el administrador se enferma o se va, el club queda ciego: la operación vive en su cabeza."],
-      ["🏆", "La competencia se apaga", "Rankings en la pizarra, resultados que se pierden y socios que dejan de desafiar."],
+      ["book", "Doble arriendo de canchas", "Dos reservas para la misma hora porque el cuaderno y el WhatsApp no conversan. El socio que llega y no puede jugar no siempre vuelve."],
+      ["coins", "Pagos no anotados", "Transferencias que nadie registró, morosidad invisible y cobros incómodos meses después."],
+      ["user", "Todo depende de una persona", "Si el administrador se enferma o se va, el club queda ciego: la operación vive en su cabeza."],
+      ["trophy", "La competencia se apaga", "Rankings en la pizarra, resultados que se pierden y socios que dejan de desafiar."],
     ],
   },
   software: {
     label: "Ya usa un software",
     sub: "Automatizado, pero caro o incompleto",
     dolores: [
-      ["💰", "Paga caro por solo reservas", "UF 5 o más al mes por un calendario. Torneos, escalerillas y pantallas siguen a mano o no existen."],
-      ["🧩", "La competencia vive fuera", "El software agenda canchas, pero la vida deportiva del club — desafíos, rankings, torneos — no cabe en él."],
-      ["📉", "Costos que crecen con el club", "Cobros por socio, módulos extra o comisiones sobre arriendos: crecer sale caro."],
-      ["🔒", "Datos encerrados", "La información del club vive en una herramienta que no conversa con nada más."],
+      ["coins", "Paga caro por solo reservas", "UF 5 o más al mes por un calendario. Torneos, escalerillas y pantallas siguen a mano o no existen."],
+      ["puzzle", "La competencia vive fuera", "El software agenda canchas, pero la vida deportiva del club — desafíos, rankings, torneos — no cabe en él."],
+      ["trendDown", "Costos que crecen con el club", "Cobros por socio, módulos extra o comisiones sobre arriendos: crecer sale caro."],
+      ["lock", "Datos encerrados", "La información del club vive en una herramienta que no conversa con nada más."],
     ],
   },
   mixto: {
     label: "Automatización parcial",
     sub: "Varias herramientas sueltas que no conversan",
     dolores: [
-      ["🔀", "Un sistema para cada cosa", "Reservas en una app, pagos por transferencia, torneos en Excel, avisos por WhatsApp. Nada conectado."],
-      ["🧮", "Conciliación manual", "Fin de mes cruzando la cartola del banco contra tres planillas para saber qué se pagó."],
-      ["🌫️", "Sin foto consolidada", "Ocupación, ingresos y morosidad viven en lugares distintos: las decisiones se toman a ciegas."],
-      ["🔑", "Cada proceso con su clave", "Cuentas, contraseñas y formatos distintos. Capacitar a alguien nuevo toma semanas."],
+      ["shuffle", "Un sistema para cada cosa", "Reservas en una app, pagos por transferencia, torneos en Excel, avisos por WhatsApp. Nada conectado."],
+      ["grid", "Conciliación manual", "Fin de mes cruzando la cartola del banco contra tres planillas para saber qué se pagó."],
+      ["cloud", "Sin una vista única", "Ocupación, ingresos y morosidad viven en lugares distintos: las decisiones se toman a ciegas."],
+      ["key", "Cada proceso con su clave", "Cuentas, contraseñas y formatos distintos. Capacitar a alguien nuevo toma semanas."],
     ],
   },
 };
@@ -44,6 +45,10 @@ export const PERFILES = {
 export default function Problema() {
   const club = useClub();
   const [perfil, setPerfil] = useState(club.perfil in PERFILES ? club.perfil : "planillas");
+  /* Re-sincroniza si se cambia el perfil en Preparar durante la reunión. */
+  useEffect(() => {
+    if (club.perfil in PERFILES) setPerfil(club.perfil);
+  }, [club.perfil]);
   const P = PERFILES[perfil];
 
   return (
@@ -107,10 +112,10 @@ export default function Problema() {
               >
                 <div className="flex items-center gap-2.5">
                   <span
-                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-lg ring-1 ring-white/10"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-limebrand ring-1 ring-white/10"
                     aria-hidden="true"
                   >
-                    {icon}
+                    <Icon name={icon} className="h-4.5 w-4.5" />
                   </span>
                   <h3 className="text-[15px] font-bold text-white">{t}</h3>
                 </div>

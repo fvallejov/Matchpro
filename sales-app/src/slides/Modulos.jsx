@@ -34,7 +34,7 @@ export function SlidePanel() {
             Operativo el mismo día de la configuración.
           </p>
         </Reveal>
-        <Reveal className="min-w-0">
+        <Reveal className="min-w-0 mock">
           <DashboardVivo />
         </Reveal>
       </div>
@@ -63,7 +63,7 @@ export function SlidePagos() {
     <section className="h-full bg-surface">
       <SlideSplit
         eyebrow="Pagos"
-        title="La plata entra por un solo lugar."
+        title="Los ingresos entran por un solo lugar."
         desc="Cobros integrados con Transbank: reservas, cuotas de socios e inscripciones a torneos quedan pagados y registrados en el momento, con estado visible — pagado, pendiente o fallido."
         pill="Transparencia total, conciliación automática."
         mock={<MockPagos />}
@@ -148,7 +148,7 @@ export function SlideEscalerilla() {
     <section className="h-full bg-white">
       <SlideSplit
         eyebrow="Competencia permanente"
-        title="Un club que compite es un club que vuelve."
+        title="Socios que compiten, socios que se quedan."
         desc="Tus socios se desafían entre ellos con reglas que tú defines; el ranking se reordena solo con cada resultado confirmado. El nivel no se declara: se calcula con TrueRank a partir de partidos jugados."
         pill="Competencia organizada = retención de socios."
         mock={<EscalerillaViva />}
@@ -202,7 +202,7 @@ export function SlideTV() {
             Incluido en todos los planes. Sin costo extra.
           </p>
         </Reveal>
-        <Reveal className="min-w-0">
+        <Reveal className="min-w-0 mock">
           <MockTV />
         </Reveal>
       </div>

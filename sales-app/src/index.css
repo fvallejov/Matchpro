@@ -226,6 +226,14 @@ body {
     var(--color-surface);
 }
 
+/* Fondo a sangre completa: el fondo de la lámina lo pinta una capa a
+   viewport completo (App.jsx). Dentro del lienzo escalado 1280×720 el
+   <section> va transparente para que no haya costura entre el lienzo y
+   el letterbox — el fondo es uno solo y continuo. */
+.deck-canvas section {
+  background: transparent;
+}
+
 ::selection {
   background: var(--color-limebrand);
   color: var(--color-limeink);
@@ -246,7 +254,102 @@ body {
 @media print {
   .no-print { display: none !important; }
   .print-slide { break-after: page; page-break-after: always; }
-  body { background: white; }
+
+  /* PDF PENSADO PARA IMPRIMIR: papel blanco, sin los grandes fondos
+     oscuros del deck, pero con jerarquía por bloques de color (no todo
+     blanco) y los mockups/figuras intactos. Estrategia:
+       · el deck va a fondo blanco + tinta oscura, tarjetas oscuras →
+         bloque gris claro;
+       · acentos (pills lime/teal) conservan color;
+       · los gráficos (.print-figure) se imprimen como bloque oscuro
+         para que barras y curva se vean;
+       · los mockups (.mock) se imprimen TAL CUAL, con su paleta. */
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* Sliders no funcionan en papel: se ocultan y queda el valor
+     configurado (va en la etiqueta del control). */
+  .range-pro { display: none !important; }
+
+  /* Decoración de pantalla que ensucia el papel: auroras y sombras.
+     Se anula solo el drop-shadow (--tw-shadow); los aros/bordes
+     (--tw-ring-shadow) se conservan para dar definición. */
+  .aurora-blob { display: none !important; }
+  * { --tw-shadow: 0 0 #0000 !important; }
+
+  /* Deck: fondos oscuros/tintados → blanco (robusto aunque activen
+     «Gráficos de fondo»). Tarjetas oscuras → bloque gris claro. */
+  .print-slide .hero-night-cm,
+  .print-slide .night-cm,
+  .print-slide .tint-teal,
+  .print-slide .tint-lime {
+    background: #fff !important;
+  }
+  .print-slide .bg-night,
+  .print-slide .bg-surface {
+    background-color: #fff !important;
+  }
+  .print-slide .bg-nightcard {
+    background-color: var(--color-surface) !important;
+    border: 1px solid var(--color-line) !important;
+  }
+
+  /* Deck: texto claro (iba sobre fondo oscuro) → tinta oscura. */
+  .print-slide .text-white { color: var(--color-inkstrong) !important; }
+  .print-slide .text-nightink { color: var(--color-ink) !important; }
+  .print-slide .text-nightsecond { color: var(--color-second) !important; }
+  .print-slide .text-limebrand { color: var(--color-limefg) !important; }
+  .print-slide .text-tealbrand { color: #0f766e !important; }
+
+  /* Bloques de color para jerarquía: los acentos claros conservan su
+     color (print-color-adjust obliga a pintarlos aunque «Gráficos de
+     fondo» esté apagado). */
+  .bg-limebrand,
+  .bg-limetint,
+  .bg-inkstrong {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Figuras/gráficos (benchmark): se imprimen sobre BLANCO con las
+     barras y la línea en color (print-color-adjust las obliga a
+     pintarse). El texto va a tinta oscura y las barras rivales
+     (blancas en pantalla, invisibles en papel) pasan a gris. */
+  .print-figure,
+  .print-figure * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .print-figure .text-white { color: var(--color-inkstrong) !important; }
+  .print-figure .text-white\/70 { color: var(--color-second) !important; }
+  .print-figure .text-white\/40,
+  .print-figure .text-white\/35 { color: var(--color-mutedink) !important; }
+  .print-figure .text-nightsecond { color: var(--color-second) !important; }
+  .print-figure .text-limebrand { color: var(--color-limefg) !important; }
+  .print-figure .bench-bar-rival {
+    background-image: none !important;
+    background-color: var(--color-mutedink) !important;
+  }
+
+  /* Mockups del producto: se imprimen EXACTAMENTE como en pantalla
+     (fondos y colores), sin las sombras. El `.mock` va al final: misma
+     especificidad que el deck, gana por orden. */
+  .mock,
+  .mock * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .mock .hero-night-cm { background: var(--color-night) !important; }
+  .mock .bg-night { background-color: var(--color-night) !important; }
+  .mock .bg-nightcard { background-color: var(--color-nightcard) !important; border: 0 !important; }
+  .mock .bg-surface { background-color: var(--color-surface) !important; }
+  .mock .text-white { color: #fff !important; }
+  .mock .text-nightink { color: var(--color-nightink) !important; }
+  .mock .text-nightsecond { color: var(--color-nightsecond) !important; }
+  .mock .text-limebrand { color: var(--color-limebrand) !important; }
+  .mock .text-tealbrand { color: var(--color-tealbrand) !important; }
 }
 
 /* ─── Sliders custom (los nativos se ven con borde negro) ────── */

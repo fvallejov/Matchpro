@@ -9,6 +9,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { EASE, ladderSpring } from "../motion";
 import { PanelChrome, CountUp } from "../ui";
 import { useClub } from "../club";
+import qrLight from "../assets/qr-light.svg";
 
 /* ── QR falso anatómicamente correcto (heredado) ────────────── */
 
@@ -151,7 +152,7 @@ export function MockReservas() {
           </AnimatePresence>
         </div>
         <div className="mt-2.5 flex items-center gap-2.5 rounded-xl border border-line bg-white px-3 py-2">
-          <FakeQR className="h-8 w-8 shrink-0 rounded" light="#e2e8f0" dark="#0f172a" />
+          <img src={qrLight} alt="" className="h-8 w-8 shrink-0 rounded" aria-hidden="true" />
           <p className="text-[9px] leading-snug text-second">
             <span className="font-bold text-inkstrong">Reservas públicas activas.</span> Usuarios externos
             reservan y pagan por link o QR, sin crear cuenta.
@@ -379,7 +380,7 @@ export function MockTorneos() {
               </span>
             </div>
             <p className="mt-0.5 text-[8px] text-second">Eliminación Simple · Competitivo</p>
-            <p className="mt-1 text-[8px] text-second">👥 8/16 · 🎾 4 canchas · 💰 $10.000</p>
+            <p className="mt-1 text-[8px] text-second">8/16 inscritos · 4 canchas · $10.000</p>
             <p className="mt-1 rounded bg-pmamber/10 px-1.5 py-0.5 text-[7.5px] font-semibold text-pmamber">
               ◷ Cierra en 1 semana
             </p>

@@ -5,109 +5,109 @@
 // del benchmark de 31 atributos).
 
 import { motion } from "framer-motion";
-import { Reveal } from "../ui";
+import { Reveal, Accent } from "../ui";
+import { Icon } from "../icons";
+import isotipo from "../assets/isotipo.svg";
 import { PLANES } from "../pricing";
 import { EASE } from "../motion";
 
-const COLS = ["MatchPro", "EasyCancha", "CourtReserve", "PlayByPoint", "Playtomic"];
+const RIVALES = ["EasyCancha", "CourtReserve", "PlayByPoint", "Playtomic"];
 
+/* [label, MatchPro, ...rivales] · 1 = check, 0 = — , string = texto */
 const FILAS = [
-  {
-    label: "Precio mensual",
-    vals: [`UF ${PLANES.club.uf} plano`, "UF 5 + IVA", "US$329", "US$400", "≈ US$132"],
-    texto: true,
-  },
-  {
-    label: "Costo por socio / jugador",
-    vals: ["Ilimitados", "—", "—", "—", "—"],
-    texto: true,
-  },
-  {
-    label: "Comisión sobre pagos",
-    vals: ["$750 + 4% solo online", "No", "No", "No", "5–15% arriendos"],
-    texto: true,
-  },
-  { label: "Pagos chilenos (Transbank)", vals: [1, 1, 0, 0, 0] },
-  { label: "Escalerillas + desafíos", vals: [1, 0, 0, 0, 0] },
-  { label: "Motores de torneo", vals: ["9", "1", "1", "1", "Varios"], texto: true },
-  { label: "Pantallas en el club (TV)", vals: [1, 0, 0, "Básico", 0] },
-  { label: "Gestión por WhatsApp", vals: [1, 0, 0, 0, 0] },
-  { label: "Live scoring", vals: [1, 0, 0, 0, "Básico"] },
+  ["Precio mensual", "UF 3 plano", "UF 5 + IVA", "US$329", "US$400", "≈ US$132", true],
+  ["Costo por socio", "Ilimitados", "—", "—", "—", "—"],
+  ["Comisión sobre pagos", "$750 + 4% solo online", "No", "No", "No", "5–15%"],
+  ["Pagos chilenos (Transbank)", 1, 1, 0, 0, 0],
+  ["Escalerillas + desafíos", 1, 0, 0, 0, 0],
+  ["Motores de torneo", "9", "1", "1", "1", "Varios"],
+  ["Pantallas en el club (TV)", 1, 0, 0, "Básico", 0],
+  ["Gestión por WhatsApp", 1, 0, 0, 0, 0],
+  ["Live scoring", 1, 0, 0, 0, "Básico"],
 ];
 
-function Celda({ v, destacada }) {
-  if (typeof v === "string")
-    return (
-      <span className={`text-[12px] font-bold ${destacada ? "text-limefg" : "text-inkstrong"}`}>{v}</span>
-    );
+function Celda({ v, hero = false, precio = false }) {
   if (v === 1)
-    return (
-      <span className={`text-[13px] font-bold ${destacada ? "text-limefg" : "text-inkstrong"}`}>✓</span>
+    return hero ? (
+      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-limebrand">
+        <Icon name="check" className="h-3 w-3 text-limeink" />
+      </span>
+    ) : (
+      <Icon name="check" className="h-3.5 w-3.5 text-second" />
     );
-  return <span className="text-[12px] text-mutedink">—</span>;
+  if (v === 0 || v === "—") return <span className="text-[12px] text-mutedink">—</span>;
+  return (
+    <span
+      className={`${precio ? "text-[15px]" : "text-[12px]"} font-bold ${hero ? "text-limeink" : precio ? "text-inkstrong" : "text-second"}`}
+    >
+      {v}
+    </span>
+  );
 }
 
 export default function Comparativa() {
   return (
-    <section className="flex h-full items-center bg-white">
+    <section className="tint-lime flex h-full items-center">
       <div className="mx-auto w-full max-w-6xl px-10">
         <Reveal>
           <p className="eyebrow text-limefg">El mercado</p>
           <h2 className="mt-2 max-w-3xl text-3xl font-bold tracking-tight text-balance text-inkstrong">
-            Más capacidades que cualquier actor del rubro.
+            Más capacidades que <Accent>cualquier actor del rubro.</Accent>
           </h2>
         </Reveal>
 
-        <Reveal className="mt-7 overflow-hidden rounded-2xl border border-line shadow-lg shadow-inkstrong/5">
-          <div className="grid grid-cols-[1.6fr_repeat(5,1fr)]">
+        <Reveal className="relative mt-8">
+          <div className="grid grid-cols-[1.5fr_1.25fr_repeat(4,1fr)] items-stretch">
             {/* Header */}
-            <span className="border-b border-line bg-surface px-4 py-2.5" />
-            {COLS.map((c, i) => (
-              <span
-                key={c}
-                className={`border-b px-2 py-2.5 text-center text-[12px] font-extrabold ${
-                  i === 0
-                    ? "border-limebrand bg-limetint/50 text-limeink"
-                    : "border-line bg-surface text-second"
-                }`}
-              >
-                {c}
+            <span className="pb-1" />
+            <div className="relative -mt-4 flex flex-col items-center rounded-t-2xl bg-white pt-4 pb-2 shadow-xl shadow-limebrand/20 ring-2 ring-limebrand">
+              <img src={isotipo} alt="MatchPro" className="h-6 w-auto" />
+              <span className="mt-1 font-mono text-[9px] font-bold tracking-[0.14em] text-limefg uppercase">
+                MatchPro
+              </span>
+            </div>
+            {RIVALES.map((r) => (
+              <span key={r} className="flex items-end justify-center pb-2 text-[12.5px] font-bold text-second">
+                {r}
               </span>
             ))}
             {/* Filas */}
-            {FILAS.map(({ label, vals }, f) => (
-              <div key={label} className="contents">
-                <span
-                  className={`flex items-center px-4 py-[9px] text-[12px] font-semibold text-inkstrong ${
-                    f % 2 ? "bg-surface/60" : "bg-white"
-                  }`}
-                >
-                  {label}
-                </span>
-                {vals.map((v, i) => (
-                  <span
-                    key={i}
-                    className={`flex items-center justify-center px-2 py-[9px] text-center ${
-                      i === 0 ? "bg-limetint/25" : f % 2 ? "bg-surface/60" : "bg-white"
-                    }`}
-                  >
-                    <Celda v={v} destacada={i === 0} />
+            {FILAS.map(([label, mp, ...resto], f) => {
+              const precio = Boolean(resto[4]);
+              const vals = resto.slice(0, 4);
+              return (
+                <div key={label} className="contents">
+                  <span className="flex items-center border-t border-line py-[11px] pr-4 text-[12.5px] font-semibold text-inkstrong">
+                    {label}
                   </span>
-                ))}
-              </div>
-            ))}
+                  <span
+                    className={`flex items-center justify-center bg-white py-[11px] ring-2 ring-limebrand ${
+                      f === FILAS.length - 1 ? "rounded-b-2xl shadow-xl shadow-limebrand/20" : ""
+                    } ${f > 0 ? "border-t border-limetint" : ""}`}
+                    style={{ clipPath: f === FILAS.length - 1 ? undefined : "inset(0 -2px 0 -2px)" }}
+                  >
+                    <Celda v={mp} hero precio={precio} />
+                  </span>
+                  {vals.map((v, i) => (
+                    <span key={i} className="flex items-center justify-center border-t border-line py-[11px]">
+                      <Celda v={v} precio={precio} />
+                    </span>
+                  ))}
+                </div>
+              );
+            })}
           </div>
         </Reveal>
 
         <Reveal>
-          <p className="mt-4 flex items-baseline justify-between font-mono text-[10px] text-mutedink">
-            <span>
+          <div className="mt-5 flex items-center justify-between">
+            <p className="font-mono text-[10px] text-mutedink">
               Precios referenciales de planes comparables — sitios oficiales y propuestas públicas (2026).
+            </p>
+            <span className="rounded-full bg-inkstrong px-4 py-1.5 text-[12px] font-bold text-limebrand">
+              El precio plano más bajo entre plataformas completas
             </span>
-            <span className="text-[12px] font-bold text-inkstrong">
-              Al precio plano más bajo entre plataformas completas.
-            </span>
-          </p>
+          </div>
         </Reveal>
       </div>
     </section>
@@ -144,6 +144,10 @@ export function MercadoGrafico() {
           </h2>
         </Reveal>
 
+        {/* .print-figure: en el PDF se imprime como bloque oscuro para
+            que las barras y la curva se vean (en papel blanco quedarían
+            invisibles) — ver @media print. En pantalla no cambia nada. */}
+        <div className="print-figure">
         {/* Curva de precio mensual (USD, referencial) */}
         <Reveal className="relative mt-8 h-24">
           <p className="absolute top-0 left-0 font-mono text-[9.5px] tracking-[0.15em] text-loss/90 uppercase">
@@ -203,7 +207,7 @@ export function MercadoGrafico() {
                   className={`w-full max-w-28 rounded-t-2xl ${
                     propio
                       ? "bg-gradient-to-t from-limebrand/60 to-limebrand shadow-[0_0_40px_rgba(187,244,81,0.35)]"
-                      : "bg-gradient-to-t from-white/10 to-white/25"
+                      : "bench-bar-rival bg-gradient-to-t from-white/10 to-white/25"
                   }`}
                 />
                 <div className={`mt-3 w-full border-t pt-2 text-center ${propio ? "border-limebrand/50" : "border-nightline"}`}>
@@ -223,6 +227,7 @@ export function MercadoGrafico() {
             {PLANES.club.uf} ≈ US$135) · fuentes: sitios oficiales y propuestas comerciales públicas
           </p>
         </Reveal>
+        </div>
       </div>
     </section>
   );

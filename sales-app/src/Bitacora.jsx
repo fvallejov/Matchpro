@@ -8,6 +8,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { fechaLegible } from "./club";
+import { Icon } from "./icons";
 
 /** Vencimiento de la propuesta guardada (desde em+val de su query). */
 export function vencimientoInfo(r) {
@@ -49,9 +50,12 @@ const baseActual = () => window.location.href.split(/[?#]/)[0];
 
 /** Query almacenada → link completo con la base de HOY (así los
     registros viejos no quedan atados a una ruta antigua). */
+export function queryDeRegistro(r) {
+  return r.query ?? r.link?.split("?")[1] ?? "";
+}
+
 export function linkDeRegistro(r) {
-  const query = r.query ?? r.link?.split("?")[1] ?? "";
-  return `${baseActual()}?${query}`;
+  return `${baseActual()}?${queryDeRegistro(r)}`;
 }
 
 /** Guarda (o actualiza por club+fecha) la reunión actual. */
@@ -63,6 +67,7 @@ export function registrarReunion(config, query) {
     id,
     club: config.nombre,
     contacto: config.contacto,
+    vendedor: config.vendedor,
     cargo: config.cargo,
     fono: config.fono,
     fecha: config.fecha,
@@ -91,9 +96,31 @@ function exportarCSV(items) {
   URL.revokeObjectURL(a.href);
 }
 
-export default function Bitacora({ onClose }) {
+/** Consejo accionable según estado + vencimiento (heurística simple). */
+export function consejo(r) {
+  const v = vencimientoInfo(r);
+  const hoy = new Date().toISOString().slice(0, 10);
+  if (r.estado === "Ganada" || r.estado === "Perdida") return null;
+  if (r.estado === "Propuesta enviada" && v) {
+    if (v.dias < 0) return ["mail", "Venció sin respuesta — reábrela con el botón Contrapropuesta"];
+    if (v.dias <= 2) return ["phone", `Llámalo HOY: la propuesta vence ${v.dias === 0 ? "hoy" : "en " + v.dias + " día" + (v.dias > 1 ? "s" : "")}`];
+    if (v.dias <= 7) return ["mail", `Escríbele recordando que vence el ${fechaLegible(v.vence)}`];
+    return ["clock", "Enviada hace poco — dale 2–3 días antes del seguimiento"];
+  }
+  if (r.estado === "Realizada") return ["mail", "Envía el resumen mientras la reunión está fresca"];
+  if (r.estado === "Agendada") {
+    if (r.fecha && r.fecha < hoy) return ["clock", "La reunión ya pasó — actualiza el estado"];
+    if (r.fecha === hoy) return ["phone", "Reunión HOY — revisa láminas y números en Editar"];
+    return ["clock", "Prepara la reunión: revisa láminas, números y concesiones"];
+  }
+  return null;
+}
+
+export default function Bitacora({ onClose, abrir }) {
   const [items, setItems] = useState(leerBitacora);
   const [copiado, setCopiado] = useState("");
+  const [filtro, setFiltro] = useState("Todas");
+  const visibles = filtro === "Todas" ? items : items.filter((r) => r.estado === filtro);
 
   const actualizar = (id, patch) => {
     const next = items.map((r) => (r.id === id ? { ...r, ...patch } : r));
@@ -164,8 +191,24 @@ export default function Bitacora({ onClose }) {
             los datos y usa <span className="font-bold text-white">"Guardar en bitácora"</span>.
           </p>
         ) : (
-          <div className="mt-5 flex flex-col gap-2.5">
-            {items.map((r) => (
+          <>
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {["Todas", ...ESTADOS].map((e) => (
+              <button
+                key={e}
+                type="button"
+                onClick={() => setFiltro(e)}
+                className={`rounded-full px-3 py-1 text-[10.5px] font-bold transition-colors ${
+                  filtro === e ? "bg-limebrand/15 text-limebrand ring-1 ring-limebrand/40" : "text-nightsecond hover:text-white"
+                }`}
+              >
+                {e}
+                {e !== "Todas" && ` (${items.filter((r) => r.estado === e).length})`}
+              </button>
+            ))}
+          </div>
+          <div className="mt-3 flex flex-col gap-2.5">
+            {visibles.map((r) => (
               <div key={r.id} className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
@@ -175,6 +218,11 @@ export default function Bitacora({ onClose }) {
                         <span className="ml-2 text-[12px] font-semibold text-nightsecond">
                           {r.contacto}
                           {r.cargo ? ` · ${r.cargo}` : ""}
+                        </span>
+                      )}
+                      {r.vendedor && (
+                        <span className="ml-2 rounded-full bg-tealbrand/15 px-2 py-0.5 text-[9px] font-bold text-tealbrand">
+                          a cargo: {r.vendedor}
                         </span>
                       )}
                     </p>
@@ -219,6 +267,14 @@ export default function Bitacora({ onClose }) {
                     ))}
                   </div>
                 </div>
+                {(() => {
+                  const c = consejo(r);
+                  return c ? (
+                    <p className="mt-2 flex items-center gap-1.5 rounded-lg bg-tealbrand/10 px-2.5 py-1.5 text-[11px] font-semibold text-tealbrand">
+                      <Icon name={c[0]} className="h-3 w-3 shrink-0" /> {c[1]}
+                    </p>
+                  ) : null;
+                })()}
                 <div className="mt-2.5 flex flex-wrap items-center gap-2">
                   <input
                     value={r.notas}
@@ -226,15 +282,30 @@ export default function Bitacora({ onClose }) {
                     placeholder="Notas (objeciones, próximos pasos…)"
                     className="min-w-0 flex-1 rounded-xl border border-nightline bg-night px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-nightsecond/50 focus:border-tealbrand"
                   />
+                  {/* Sin recarga: la config del registro se aplica en memoria */}
                   <button
                     type="button"
-                    onClick={() => {
-                      window.location.href = linkDeRegistro(r);
-                    }}
+                    onClick={() => abrir(queryDeRegistro(r), null)}
                     className="rounded-full bg-limebrand px-3 py-1.5 text-[11px] font-bold text-limeink"
-                    title="Cargar esta reunión (recarga la app con su configuración)"
+                    title="Cargar esta reunión para presentar"
                   >
-                    Abrir reunión
+                    Presentar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => abrir(queryDeRegistro(r), "prep")}
+                    className="rounded-full border border-nightline px-3 py-1.5 text-[11px] font-semibold text-nightsecond hover:text-white"
+                    title="Abre la reunión con Preparar desplegado — datos del club, láminas y concesiones"
+                  >
+                    ✎ Editar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => abrir(queryDeRegistro(r), "contra")}
+                    className="rounded-full border border-pmamber/40 bg-pmamber/10 px-3 py-1.5 text-[11px] font-bold text-pmamber hover:bg-pmamber/20"
+                    title="Abre el módulo negociador: solo excepciones, comisión y nueva validez — documento nuevo"
+                  >
+                    ↩ Contrapropuesta
                   </button>
                   <button
                     type="button"
@@ -256,6 +327,7 @@ export default function Bitacora({ onClose }) {
               </div>
             ))}
           </div>
+          </>
         )}
       </div>
     </motion.div>

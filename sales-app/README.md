@@ -51,12 +51,69 @@ comisiones ($750 + 4%, cubren el costo Transbank), descuentos permanentes y prec
 lista — eso vive en `src/pricing.js` y es decisión de negocio. Ampliar el menú de
 concesiones = editar `NEGOCIACION` en pricing.js.
 
+## Primera reunión (descubrimiento, sin datos del club)
+
+Cuando no hay antecedentes del club, la primera reunión es **descubrimiento, no
+presentación**: el objetivo es calificar y ganar la segunda reunión, no cerrar ni
+cotizar. En Preparar hay dos botones de receta:
+
+- **◇ Primera reunión**: arma en un clic el set mínimo de descubrimiento —
+  **Diagnóstico → El panel → Mercado → Implementación** (Portada y Propuesta van fijas).
+  La **Calculadora queda fuera** y el precio se difiere: se arma con los números reales
+  del club para la segunda reunión. No aplica concesiones y **no preselecciona perfil**:
+  el perfil del Diagnóstico se elige en vivo según lo que va contando el club. Como no se
+  sabe qué van a preguntar, no se precura: el índice (`G`) permite saltar a cualquier
+  lámina que pidan.
+- **✦ Sugerir configuración**: para cuando SÍ hay contexto — cura láminas y concesiones
+  según el perfil de diagnóstico y el tamaño del club (canchas).
+
+Después de una reunión de descubrimiento, registrar en la Bitácora (`R`) lo averiguado
+(canchas, perfil, herramientas actuales, GMV estimado): queda listo para preparar la
+segunda reunión ya personalizada, con la Calculadora y la Propuesta.
+
 ## Uso en reunión
 
 - Lienzo fijo 1280×720 escalado al viewport: la altura de la presentación nunca varía.
 - `←` `→` navegar · `G` índice (salto no lineal según la conversación) · `E` preparar
   reunión · `F` pantalla completa · `P` exporta PDF (apila las láminas e imprime).
+- **Índice (`G`)**: en la sesión del vendedor muestra **todas** las láminas —
+  numeradas las de la selección, atenuadas (`+`) las de fuera— y permite saltar a
+  cualquiera durante la reunión. Las flechas y los puntos recorren solo la selección; el
+  índice es el atajo para lo no previsto. En el link del cliente (`modo=cliente`) el
+  índice muestra **solo** las láminas seleccionadas.
 - Los puntos de la barra inferior también navegan; la URL guarda la lámina (`#precio`).
+- **Fondo a sangre completa**: el fondo de cada lámina llena todo el viewport (el
+  contenido vive en el lienzo 1280×720). Si agregas o cambias el fondo de una lámina,
+  actualiza también su `bg` en el arreglo `SLIDES` de `src/App.jsx`.
+
+## Exportar a PDF (tecla `P`)
+
+`P` apila las láminas de la selección e imprime — pensado como **documento para imprimir
+o dejar**, no como captura del deck en pantalla. Todo el tema de impresión vive en el
+bloque `@media print` de `src/index.css`:
+
+- **El deck se imprime en claro**: las láminas oscuras van a fondo blanco con tinta
+  oscura (ahorra tinta y se lee en papel). Basta con dejar **«Gráficos de fondo»
+  desactivado** (el default) en el diálogo.
+- **No es todo blanco — jerarquía por bloques de color**: las tarjetas oscuras pasan a
+  bloque gris claro con borde, y los acentos (pills lime/teal, `bg-inkstrong`) conservan
+  su color.
+- **Los gráficos se imprimen como figura oscura**: el gráfico del benchmark va envuelto
+  en `.print-figure`, que en el PDF se pinta como bloque oscuro para que las barras y la
+  curva se vean (en papel blanco quedarían invisibles). Marca con `.print-figure`
+  cualquier data-viz que dependa de fondos/gradientes de color.
+- **Los mockups del producto se conservan tal cual**: los mocks de Club Manager (panel,
+  reservas, pagos, torneos, TV, dashboard…) llevan la clase `.mock` y se imprimen con su
+  diseño y colores originales. Al agregar un mock nuevo, márcalo con `.mock` (o pásalo
+  por `SlideSplit`, que ya lo hace) para que se preserve.
+- **Sin sliders ni adornos que no funcionan en papel**: los sliders (`.range-pro`) se
+  ocultan y queda el valor configurado (va en la etiqueta del control); las auroras y las
+  sombras (drop-shadow) también se quitan, conservando los bordes/aros que dan definición.
+- Entran solo las láminas de la selección (las mismas del flujo), no las 24.
+
+> Como el sandbox no renderiza PDF, conviene una impresión de prueba real antes de un
+> ciclo de ventas: revisar que los bloques de figura no se corten entre páginas y que
+> ningún texto claro se escape del volteo a tinta oscura.
 
 ## Láminas (21)
 
@@ -129,3 +186,14 @@ src/
    revisar en especial que Calculadora y Propuesta quepan en el lienzo 1280×720.
 6. Verificar los datos de la lámina Comparativa contra el benchmark vigente antes de
    cada ciclo de ventas (precios de competidores cambian).
+
+## Links: opacos hoy, cortos mañana
+
+- **Hoy (sin backend)**: los links de Preparar viajan en UN parámetro codificado y
+  firmado (`?d=…`). Sin campos legibles ni editables a mano; si alguien altera el
+  payload, la app muestra "link modificado — no es válido". Honestidad técnica: la sal
+  vive en el bundle → detiene la edición casual, no a un programador motivado.
+- **Cuando la app esté hosteada** (`sales.getmatchpro.com` — necesario de todos modos
+  para ENVIAR links, porque `file://` no viaja): desplegar `shortener-worker.js`
+  (Cloudflare Worker + KV, gratis). Da links cortos reales (`/p/x7k2`), ineditables,
+  revocables y con **tracking de apertura** — sabrás cuándo el club miró la propuesta.

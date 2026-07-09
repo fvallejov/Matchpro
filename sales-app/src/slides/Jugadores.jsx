@@ -13,6 +13,7 @@ import { Reveal, RevealItem, SlideSplit } from "../ui";
 import { useClub } from "../club";
 import imgMatchmaking from "../assets/app/matchmaking.webp";
 import imgEscalerilla from "../assets/app/escalerilla.webp";
+import { Icon } from "../icons";
 
 /* ── PhoneFrame con captura real de la app ──────────────────── */
 
@@ -39,7 +40,8 @@ const SEQ = [
 
 function BigScore({ value, lime, game }) {
   return (
-    <AnimatePresence mode="popLayout" initial={false}>
+    <span className="flex h-[60px] w-[7.5rem] items-center justify-end overflow-hidden">
+      <AnimatePresence mode="popLayout" initial={false}>
       <motion.p
         key={value}
         initial={{ y: 30, opacity: 0, scale: 0.75 }}
@@ -52,7 +54,8 @@ function BigScore({ value, lime, game }) {
       >
         {value}
       </motion.p>
-    </AnimatePresence>
+      </AnimatePresence>
+    </span>
   );
 }
 
@@ -166,7 +169,7 @@ export function SlideApp() {
     <section className="tint-lime h-full">
       <SlideSplit
         eyebrow="La app del jugador · lanzamiento próximo"
-        title="MatchPro: la app que le trae jugadores a tu club."
+        title="MatchPro: la app que trae jugadores a tu club."
         desc={
           <>
             Mientras Club Manager ordena la operación, la app MatchPro mueve la demanda: jugadores
@@ -213,8 +216,8 @@ export function SlideScoreMatch() {
     <section className="h-full bg-white">
       <SlideSplit
         eyebrow="ScoreMatch · Apple Watch"
-        title="Lo que se mide, se juega más."
-        desc="Cada punto se registra en el Apple Watch en el momento en que ocurre: estadísticas, momentum y primer saque, sin digitar nada. Y ese es el punto para tu club — un jugador que ve su progreso medido quiere el próximo partido: desafía, reserva y vuelve."
+        title="Cada punto cuenta. Literalmente."
+        desc="Cada punto se registra en el Apple Watch en el momento en que ocurre: estadísticas, momentum y primer saque, sin digitar nada. Y lo que se mide, se repite: el jugador que ve su progreso quiere el próximo partido — desafía, reserva y vuelve."
         pill="Más partidos medidos = más canchas ocupadas."
         mock={<ScoreWatch />}
         extra={
@@ -285,8 +288,8 @@ function MockClubEnApp() {
 
         {/* Tu club, primero y destacado */}
         <div className="mt-2 flex items-center gap-2.5 rounded-2xl border border-limebrand bg-limebrand/5 p-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-limebrand/15 text-[13px]" aria-hidden="true">
-            🏢
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-limebrand/15 text-limebrand" aria-hidden="true">
+            <Icon name="building" className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-mono text-[6.5px] tracking-[0.18em] text-limebrand uppercase">Tu club</p>
@@ -294,7 +297,7 @@ function MockClubEnApp() {
             <div className="mt-1 flex items-center gap-1.5">
               <span className="text-[8px] text-nightsecond">◈ a 2,1 km</span>
               <span className="rounded-full bg-tealbrand/20 px-1.5 py-0.5 text-[7px] font-bold text-tealbrand">
-                🏷 Precio socio · −15%
+                Precio socio · −15%
               </span>
             </div>
           </div>
@@ -323,8 +326,8 @@ function MockClubEnApp() {
             ["Club Miramar", "Las Condes · 5,0 km", "−10% vía MatchPro", "$16.000"],
           ].map(([n, d, oferta, precio]) => (
             <div key={n} className="flex items-center gap-2.5 rounded-2xl bg-nightcard p-2.5 ring-1 ring-nightline">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-[11px]" aria-hidden="true">
-                🏢
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-nightsecond" aria-hidden="true">
+                <Icon name="building" className="h-3.5 w-3.5" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] leading-tight font-bold text-white">{n}</p>
@@ -431,11 +434,15 @@ export function SlideEfecto() {
               <p className="font-mono text-[22px] font-bold text-limebrand">{n}</p>
               <h3 className="mt-2 text-[15px] leading-snug font-bold text-white">{t}</h3>
               <p className="mt-2 text-[12.5px] leading-relaxed text-nightsecond">{d}</p>
+              {/* Nodo conector: el circuito se ve, no se insinúa */}
               <span
-                className="absolute top-1/2 -right-3 hidden -translate-y-1/2 font-mono text-nightsecond lg:block"
+                className="absolute top-1/2 -right-[26px] z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-night ring-1 ring-limebrand/40 lg:flex"
                 aria-hidden="true"
               >
-                {i < LOOP.length - 1 ? "→" : "↻"}
+                <Icon
+                  name={i < LOOP.length - 1 ? "arrowRight" : "loop"}
+                  className={`h-3.5 w-3.5 ${i < LOOP.length - 1 ? "text-limebrand" : "text-tealbrand"}`}
+                />
               </span>
             </RevealItem>
           ))}

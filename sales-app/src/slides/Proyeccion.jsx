@@ -3,7 +3,7 @@
 // número héroe con glow y barras con gradiente. Sigue sin ser
 // una promesa: es aritmética con los supuestos del club.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Reveal, CountUp, Range } from "../ui";
 import { useClub } from "../club";
@@ -33,6 +33,11 @@ export default function Proyeccion() {
   const [maxHoras] = useState(() => Math.max(40, club.horas));
   const [maxTarifa] = useState(() => Math.max(30000, club.tarifa));
   const [maxTorneos] = useState(() => Math.max(800000, club.torneos));
+  /* Re-sincroniza con Preparar si se edita durante la reunión
+     (interactiva en vivo, pero la base la fija Preparar). */
+  useEffect(() => setHoras(club.horas), [club.horas]);
+  useEffect(() => setTarifa(club.tarifa), [club.tarifa]);
+  useEffect(() => setTorneos(club.torneos), [club.torneos]);
 
   const arriendos = horas * SEMANAS_MES * tarifa;
   const bruto = arriendos + torneos;

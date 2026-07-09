@@ -44,13 +44,14 @@ export function RevealItem({ children, className = "" }) {
 /* ── CountUp ────────────────────────────────────────────────── */
 
 export function CountUp({ to, prefix = "", suffix = "", className = "" }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
   const prefersReduced = useReducedMotion();
   const [val, setVal] = useState(0);
 
+  /* Anima al montar (no al entrar en viewport): en el deck cada lámina
+     se monta al mostrarse, así que ya está a la vista; y al imprimir
+     TODAS apiladas, las de más abajo también cuentan (antes quedaban
+     en 0 porque nunca entraban al viewport). */
   useEffect(() => {
-    if (!inView) return;
     if (prefersReduced) {
       setVal(to);
       return;
@@ -61,10 +62,10 @@ export function CountUp({ to, prefix = "", suffix = "", className = "" }) {
       onUpdate: (v) => setVal(Math.round(v)),
     });
     return () => controls.stop();
-  }, [inView, to, prefersReduced]);
+  }, [to, prefersReduced]);
 
   return (
-    <span ref={ref} className={className}>
+    <span className={className}>
       {prefix}
       {val.toLocaleString("es-CL")}
       {suffix}
@@ -269,7 +270,8 @@ export function SlideSplit({ eyebrow, title, desc, pill, mock, extra = null }) {
         )}
         {extra && <RevealItem>{extra}</RevealItem>}
       </Reveal>
-      <Reveal className="min-w-0">{mock}</Reveal>
+      {/* .mock: en impresión se preserva tal cual (ver @media print) */}
+      <Reveal className="min-w-0 mock">{mock}</Reveal>
     </div>
   );
 }

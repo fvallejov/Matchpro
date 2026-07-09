@@ -3,6 +3,7 @@
 
 import { Reveal, RevealItem } from "../ui";
 import { useClub } from "../club";
+import { Icon } from "../icons";
 
 const MOMENTOS = [
   {
@@ -40,7 +41,7 @@ export default function Ecosistema() {
         <Reveal>
           <p className="eyebrow text-tealbrand">El ecosistema MatchPro</p>
           <h2 className="mt-2 max-w-3xl text-3xl font-bold tracking-tight text-balance text-white">
-            {club.corto} no compra un software. <em className="text-limebrand">Enciende una liga.</em>
+            {club.corto} no compra un software. <em className="text-limebrand">Organiza la competencia.</em>
           </h2>
           <p className="mt-3 max-w-2xl text-[15px] text-nightsecond">
             Esto no lo tiene ningún sistema de reservas: sigue el martes por la noche de Martín, socio
@@ -64,12 +65,13 @@ export default function Ecosistema() {
                   {badge}
                 </p>
               )}
+              {/* Conector estilo «El efecto en el club»: nodo con flecha */}
               {i < MOMENTOS.length - 1 && (
                 <span
-                  className="absolute top-1/2 -right-3 hidden -translate-y-1/2 font-mono text-nightsecond lg:block"
+                  className="absolute top-1/2 -right-[26px] z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-night ring-1 ring-limebrand/40 lg:flex"
                   aria-hidden="true"
                 >
-                  →
+                  <Icon name="arrowRight" className="h-3.5 w-3.5 text-limebrand" />
                 </span>
               )}
             </RevealItem>
